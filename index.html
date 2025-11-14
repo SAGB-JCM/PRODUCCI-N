@@ -6,12 +6,12 @@
   <title>Dashboard — Evolución Producción Textil (v4.1 — Fix Totales + Donut)</title>
   <style>
     :root{
-      --primary-color:#1E5B4F; --secondary-color:#A6802D; --accent-color:#9C2348;
-      --bg:#071422; --card:rgba(255,255,255,0.03); --muted:#94a3b8; --text:#e6eef3;
+      --primary-color:#1E5B4F; --secondary-color:#A6802D; --accent-color:#9C2348; /* Colores principales se mantienen */
+      --bg:#f8f9fa; --card: #ffffff; --muted:#6c757d; --text:#212529; /* Paleta de colores clara */
     }
     *{box-sizing:border-box}
-    body{ margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial; background:linear-gradient(180deg,#041018,#071422); color:var(--text); -webkit-font-smoothing:antialiased;}
-    .container{ max-width:1280px; margin:16px auto; padding:16px; display:grid; gap:12px; grid-template-columns:1fr 360px; }
+    body{ margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial; background:linear-gradient(180deg, #f4f7f9, #e9edf2); color:var(--text); -webkit-font-smoothing:antialiased;}
+    .container{ max-width:1320px; margin:16px auto; padding:16px; display:grid; gap:16px; grid-template-columns:1fr 360px; }
     header{ grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; gap:12px }
     h1{ margin:0; font-size:20px } p.lead{ margin:0; color:var(--muted); font-size:13px }
     .controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
@@ -19,10 +19,10 @@
     .select-wrap{ position:relative; display:inline-block } .select-wrap::after{ content:"▾"; position:absolute; right:10px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--muted); font-size:12px; }
     .btn-primary{ background:linear-gradient(90deg,var(--primary-color), rgba(30,91,79,0.9)); color:#fff; border:none; box-shadow:0 8px 24px rgba(30,91,79,0.12) }
     .btn{ background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--text); padding:8px 10px; border-radius:10px; cursor:pointer }
-    label.small{ font-size:13px; color:var(--muted); margin-left:6px }
-    .card{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.03); box-shadow:0 8px 30px rgba(2,6,23,0.6); }
+    label.small{ font-size:13px; color:var(--muted); margin-left:6px; user-select:none; }
+    .card{ background: var(--card); padding:16px; border-radius:12px; border:1px solid #e9ecef; box-shadow:0 4px 12px rgba(39, 39, 39, 0.04); }
     .charts{ display:grid; gap:12px; grid-template-rows:auto 260px }
-    #chart-main{ height:520px } #chart-stack{ height:220px } #chart-heat{ height:260px } #chart-donut{ height:320px }
+    #chart-main{ height:520px } #chart-stack{ height:220px } #chart-donut{ height:320px }
     .sidebar{ display:flex; flex-direction:column; gap:12px }
     .kpis{ display:grid; gap:8px; grid-template-columns:1fr 1fr } .kpi{ padding:10px; border-radius:10px; background:rgba(255,255,255,0.01) }
     .mini-sparklines{ display:grid; gap:8px; margin-top:8px } .sparkline{ height:70px; padding:6px; border-radius:8px; background:rgba(255,255,255,0.01); display:flex; align-items:center; justify-content:space-between }
@@ -36,8 +36,8 @@
   <div class="container">
     <header>
       <div>
-        <h1>📊 Evolución Producción Textil — Dashboard (v4.1)</h1>
-        <p class="lead">Fix: Totales ya no reemplazan series. Donut con labels fuera + "Otros".</p>
+        <h1>📊 Dashboard de la Industria Textil</h1>
+        <p class="lead">Análisis evolutivo de la producción y ventas del sector textil, segmentado por clave de actividad económica (SCIAN). Las métricas de valor se presentan en miles de pesos y las de cantidad en las unidades correspondientes a cada actividad.</p>
       </div>
 
       <div class="controls">
@@ -63,26 +63,22 @@
     <section class="charts" style="grid-template-rows: auto auto 260px;">
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong id="title-main">Evolución — Valor</strong>
+          <strong id="title-main">Evolución de la Métrica Principal</strong>
           <div class="legend" id="legendContainer"></div>
         </div>
         <div id="chart-main"></div>
       </div>
 
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <strong>Participación — Donut</strong>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <strong>Distribución por Actividad (Último Año)</strong>
           <div style="display:flex;gap:8px;align-items:center">
             <label style="font-size:12px;color:var(--muted)">Umbral "Otros" %:</label>
             <input id="otrosThreshold" type="number" min="0" max="10" step="0.1" value="1" style="width:72px" />
           </div>
         </div>
         <div id="chart-donut"></div>
-        <small style="color:var(--muted)">Etiquetas fuera, "Otros" agrupa pequeñas porciones; tooltip lista ítems pequeños.</small>
-      </div>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-        <div class="card"><strong>Heatmap — Intensidad actividad × año</strong><div id="chart-heat"></div></div>
+        <small style="color:var(--muted)">"Otros" agrupa las actividades con una participación menor al umbral. El tooltip muestra el detalle.</small>
       </div>
     </section>
 
@@ -90,11 +86,10 @@
       <div class="card"><strong>Stacked (por año)</strong><div id="chart-stack"></div></div>
 
       <div class="card"><strong>KPI / Totales</strong><div class="kpis" id="kpiContainer" style="margin-top:8px;"></div><small style="color:var(--muted);display:block;margin-top:8px;">Activa "Mostrar Totales" para la serie agregada.</small></div>
-
-      <div class="card"><strong>Sparklines por actividad</strong><div class="mini-sparklines" id="sparks"></div></div>
+      <div class="card"><strong>Tendencias Individuales por Actividad</strong><div class="mini-sparklines" id="sparks"></div></div>
     </aside>
 
-    <footer class="small">Tip: actualiza <code>rawData</code> para añadir años — el dashboard recalcula todo.</footer>
+    <footer class="small">Dashboard interactivo para el análisis de la producción textil.</footer>
   </div>
 
   <script>
@@ -143,6 +138,15 @@
     const activities = Array.from(new Set(rawData.map(r=> r.actividad)));
     const nf = new Intl.NumberFormat('es-MX');
 
+    // --- INICIO: SOLUCIÓN ---
+    // Formateador inteligente para abreviar números grandes en los ejes (ej. 1.2M, 500k)
+    function axisLabelFormatter(v) {
+      if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(1) + 'M';
+      if (Math.abs(v) >= 1e3) return (v / 1e3).toFixed(0) + 'k';
+      return v;
+    }
+    // --- FIN: SOLUCIÓN ---
+
     // seriesMap
     const seriesMap = {};
     activities.forEach(act => {
@@ -164,7 +168,6 @@
 
     const main = echarts.init(document.getElementById('chart-main'), null, {renderer:'canvas'});
     const stack = echarts.init(document.getElementById('chart-stack'), null, {renderer:'canvas'});
-    const heat = echarts.init(document.getElementById('chart-heat'), null, {renderer:'canvas'});
     const donut = echarts.init(document.getElementById('chart-donut'), null, {renderer:'canvas'});
 
     function groupSmallSlices(rawSlices, thresholdPercent=1){
@@ -181,7 +184,7 @@
 
     function buildMainOptions(metric, { useLog=false, normalize=false, showTotals=false } = {}){
       const labelMap = { valor_produccion:'Valor de producción (miles)', cantidad_produccion:'Cantidad de producción', valor_ventas:'Valor de ventas (miles)', cantidad_ventas:'Cantidad ventas' };
-      document.getElementById('title-main').textContent = `Evolución — ${labelMap[metric]}`;
+      document.getElementById('title-main').textContent = `Evolución de: ${labelMap[metric]}`;
 
       if(showTotals){
         let totals = totalsByYear(metric);
@@ -194,15 +197,15 @@
         const opt = {
           backgroundColor:'transparent',
           tooltip:{ trigger:'axis', formatter: p => `<strong>${p[0].axisValue}</strong><br/>Total: <strong>${nf.format(Math.round(p[0].data*100)/100)}</strong>` },
-          xAxis:{ type:'category', data: years, axisLabel:{ color:'#bcd3df' } },
-          yAxis: useLog ? { type:'log', logBase:10, axisLabel:{ color:'#bcd3df', formatter:v=>nf.format(v) } } : { axisLabel:{ color:'#bcd3df', formatter:v=>nf.format(v) } },
+          xAxis:{ type:'category', data: years, axisLabel:{ color: cssVar('--text') } },
+          yAxis: useLog ? { type:'log', logBase:10, axisLabel:{ color: cssVar('--text'), formatter: axisLabelFormatter } } : { axisLabel:{ color: cssVar('--text'), formatter: axisLabelFormatter } },
           series:[{ name:'Total', type:'line', smooth:true, data: totals, itemStyle:{ color: primary }, areaStyle:{ opacity:0.14 }, lineStyle:{ width:3 } }],
           grid:{ left:'6%', right:'8%', top:90, bottom:70 },
           dataZoom:[{ type:'inside', start:0, end:100 }, { start:0, end:100 }]
         };
         return opt;
       }
-
+ 
       const rawSeries = activities.map((act, idx) => {
         const arr = years.map((y, yi) => metricKey(metric, act, yi) || 0);
         return { name: act, data: arr.map(v => v===0? (useLog? null : 0) : v), color: palette[idx%palette.length], raw: arr };
@@ -218,15 +221,23 @@
 
       return {
         backgroundColor:'transparent',
-        tooltip:{ trigger:'axis', axisPointer:{ type:'cross' }, formatter: params => {
-          const year = params[0].axisValue; let s = `<strong>${year}</strong><br/>`;
-          params.forEach(p => { s += `<span style="display:inline-block;margin-right:8px;width:12px;height:12px;background:${p.color};"></span> ${p.seriesName}: <strong>${p.data==null ? '—' : nf.format(Math.round(p.data*100)/100)}</strong><br/>`; });
-          return s;
-        }},
-        legend:{ type:'scroll', top:44, textStyle:{ color:'#cbd5e1' } },
+        tooltip:{ 
+          trigger:'axis', 
+          axisPointer:{ type:'cross' }, 
+          textStyle: { fontSize: 12 }, // Tooltip más pequeño
+          formatter: params => {
+            const year = params[0].axisValue; 
+            let s = `<strong style="font-size:13px;">${year}</strong><br/>`;
+            params.forEach(p => { 
+              const seriesName = p.seriesName.length > 40 ? p.seriesName.substring(0, 38) + '...' : p.seriesName;
+              s += `<div style="display:flex;align-items:center;margin-top:4px;"><span style="display:inline-block;margin-right:6px;width:10px;height:10px;background:${p.color};border-radius:2px;"></span> ${seriesName}: <strong style="margin-left:auto;padding-left:12px;">${p.data==null ? '—' : nf.format(Math.round(p.data*100)/100)}</strong></div>`; 
+            });
+            return s;
+          }},
+        legend:{ type:'scroll', top:44, textStyle:{ color: cssVar('--muted') } },
         toolbox:{ feature:{ saveAsImage:{ title:'Guardar PNG' } }, right:12 },
-        xAxis:{ type:'category', boundaryGap:false, data: years, axisLabel:{ color:'#bcd3df' } },
-        yAxis: useLog ? { type:'log', logBase:10, axisLabel:{ color:'#bcd3df', formatter:v=>nf.format(v) } } : { type:'value', axisLabel:{ color:'#bcd3df', formatter:v=>nf.format(v) } },
+        xAxis:{ type:'category', boundaryGap:false, data: years, axisLabel:{ color: cssVar('--text') } },
+        yAxis: useLog ? { type:'log', logBase:10, axisLabel:{ color: cssVar('--text'), formatter: axisLabelFormatter } } : { type:'value', axisLabel:{ color: cssVar('--text'), formatter: axisLabelFormatter } },
         dataZoom:[{ type:'inside', start:0, end:100 }, { start:0, end:100 }],
         grid:{ left:'6%', right:'8%', top:90, bottom:70 },
         series: seriesPrepared.map(s=>({ name:s.name, type:'line', smooth:true, showSymbol:true, symbolSize:6, areaStyle:{ opacity:0.12 }, lineStyle:{ width:3 }, itemStyle: s.itemStyle, data: s.data }))
@@ -235,13 +246,7 @@
 
     function buildStackOptions(metric){
       const seriesOpt = activities.map((act, idx) => ({ name:act, type:'bar', stack:'total', itemStyle:{ color: palette[idx%palette.length] }, data: years.map((y, yi) => metricKey(metric, act, yi)||0) }));
-      return { backgroundColor:'transparent', tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' } }, legend:{ show:false }, grid:{ left:'3%', right:'4%', bottom:'3%', top:10 }, xAxis:{ type:'category', data: years, axisLabel:{ color:'#bcd3df' } }, yAxis:{ axisLabel:{ color:'#bcd3df', formatter:v=>nf.format(v) } }, series: seriesOpt };
-    }
-
-    function buildHeatOptions(metric){
-      const data = [];
-      activities.forEach((act, ai) => years.forEach((y, yi) => data.push([yi, ai, metricKey(metric, act, yi)||0])));
-      return { tooltip:{ formatter: p => `<strong>${years[p.data[0]]}</strong><br/>${activities[p.data[1]]}: <strong>${nf.format(p.data[2])}</strong>` }, grid:{ left:'10%', right:'6%', top:20, bottom:20 }, xAxis:{ type:'category', data: years, axisLabel:{ color:'#bcd3df' } }, yAxis:{ type:'category', data: activities, axisLabel:{ color:'#bcd3df' } }, visualMap:{ min:0, max: Math.max(...data.map(d=>d[2]))||1, calculable:true, orient:'vertical', right:6, top:'center', textStyle:{ color:'#cbd5e1' } }, series:[{ name:'heat', type:'heatmap', data, label:{ show:false }, itemStyle:{ borderColor:'rgba(0,0,0,0.2)', borderWidth:1 } }] };
+      return { backgroundColor:'transparent', tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' } }, legend:{ show:false }, grid:{ left:'3%', right:'4%', bottom:'3%', top:20, containLabel:true }, xAxis:{ type:'category', data: years, axisLabel:{ color: cssVar('--text') } }, yAxis:{ axisLabel:{ color: cssVar('--text'), formatter: axisLabelFormatter } }, series: seriesOpt };
     }
 
     function buildDonutOptions(metric, year, otrosThresholdPercent=1){
@@ -262,13 +267,13 @@
             return `<strong>${params.name}</strong><br/>Valor: <strong>${nf.format(params.value)}</strong>`;
           }
         }},
-        legend:{ orient:'vertical', left:'right', top:20, bottom:20, textStyle:{ color:'#cbd5e1' }, width:160 },
+        legend:{ orient:'vertical', left:'right', top:20, bottom:20, textStyle:{ color: cssVar('--muted') }, width:160 },
         series:[{
           type:'pie',
           radius:['42%','68%'],
           center:['40%','50%'],
           avoidLabelOverlap:true,
-          label:{ show:true, position:'outside', formatter:'{b}\n{d}%', color:'#e6eef3' },
+          label:{ show:true, position:'outside', formatter:'{b}\n{d}%', color: cssVar('--text') },
           labelLine:{ length:10, length2:8 },
           labelLayout:{ hideOverlap:true, moveOverlap:'shiftY' },
           emphasis:{ itemStyle:{ shadowBlur:10, shadowOffsetX:0, shadowColor:'rgba(0,0,0,0.5)' } },
@@ -302,7 +307,6 @@
       // IMPORTANT: use notMerge:true for main and donut to fully replace options (evita que estilos antiguos "persistan")
       main.setOption(buildMainOptions(metric, { useLog: logChk.checked, normalize: normChk.checked, showTotals }), true);
       stack.setOption(buildStackOptions(metric)); // stack use merge ok
-      heat.setOption(buildHeatOptions(metric));
       const lastYear = Math.max(...years);
       donut.setOption(buildDonutOptions(metric, lastYear, parseFloat(otrosThresholdInput.value) || 1), true);
 
@@ -334,7 +338,7 @@
     function renderKPIs(metric){
       const totals = totalsByYear(metric); const last = totals[totals.length-1]||0; const prev = totals[totals.length-2]||0; const diff = prev===0?0:((last-prev)/prev)*100;
       const kpiContainer = document.getElementById('kpiContainer'); kpiContainer.innerHTML = '';
-      const a = document.createElement('div'); a.className='kpi'; a.innerHTML = `<div style="font-size:13px;color:var(--muted)">Total ${metric.includes('valor')? 'valor (miles)': 'cantidad'}</div><div style="font-size:18px;font-weight:700">${nf.format(last)}</div><div style="color:${diff>=0? '#8ef':'#f88'};font-size:12px">${diff>=0? '+'+diff.toFixed(1)+'%': diff.toFixed(1)+'%'}</div>`; kpiContainer.appendChild(a);
+      const a = document.createElement('div'); a.className='kpi'; a.innerHTML = `<div style="font-size:13px;color:var(--muted)">Total ${metric.includes('valor')? 'valor (miles)': 'cantidad'} (${years[years.length-1]})</div><div style="font-size:18px;font-weight:700">${nf.format(last)}</div><div style="color:${diff>=0? '#8ef':'#f88'};font-size:12px;font-weight:bold;">${diff>=0? '▲ '+diff.toFixed(1)+'%': '▼ '+diff.toFixed(1)+'%'} <span style="font-weight:normal;color:var(--muted);">vs ${years[years.length-2]}</span></div>`; kpiContainer.appendChild(a);
       const b = document.createElement('div'); b.className='kpi'; b.innerHTML = `<div style="font-size:13px;color:var(--muted)">Años en vista</div><div style="font-size:18px;font-weight:700">${years.length}</div><div style="color:var(--muted);font-size:12px">Desde ${years[0]} hasta ${years[years.length-1]}</div>`; kpiContainer.appendChild(b);
 
       activities.forEach((act,i) => {
@@ -386,7 +390,7 @@
     otrosThresholdInput.addEventListener('change', renderAll);
 
     function init(){ renderAll(); window.addEventListener('resize', ()=>{ main.resize(); stack.resize(); heat.resize(); donut.resize(); }); }
-    init();
+    function init(){ renderAll(); window.addEventListener('resize', ()=>{ main.resize(); stack.resize(); donut.resize(); }); }    init();
   </script>
 </body>
 </html>
