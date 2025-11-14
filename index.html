@@ -60,7 +60,7 @@
       </div>
     </header>
 
-    <section class="charts">
+    <section class="charts" style="grid-template-rows: auto auto 260px;">
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <strong id="title-main">Evolución — Valor</strong>
@@ -69,13 +69,6 @@
         <div id="chart-main"></div>
       </div>
 
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-        <div class="card"><strong>Stacked (por año)</strong><div id="chart-stack"></div></div>
-        <div class="card"><strong>Heatmap — Intensidad actividad × año</strong><div id="chart-heat"></div></div>
-      </div>
-    </section>
-
-    <aside class="sidebar">
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <strong>Participación — Donut</strong>
@@ -87,6 +80,14 @@
         <div id="chart-donut"></div>
         <small style="color:var(--muted)">Etiquetas fuera, "Otros" agrupa pequeñas porciones; tooltip lista ítems pequeños.</small>
       </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="card"><strong>Heatmap — Intensidad actividad × año</strong><div id="chart-heat"></div></div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="card"><strong>Stacked (por año)</strong><div id="chart-stack"></div></div>
 
       <div class="card"><strong>KPI / Totales</strong><div class="kpis" id="kpiContainer" style="margin-top:8px;"></div><small style="color:var(--muted);display:block;margin-top:8px;">Activa "Mostrar Totales" para la serie agregada.</small></div>
 
