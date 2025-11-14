@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dashboard — Evolución Producción Textil (mamalón v2)</title>
-
+  <title>Dashboard — Evolución Producción Textil (mamalón v3)</title>
   <style>
     :root {
       --primary-color: #1E5B4F;
@@ -15,73 +14,58 @@
       --muted: #94a3b8;
     }
     *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background: linear-gradient(180deg,#041018 0%, #071422 100%);
-      color:#e6eef3;
-      -webkit-font-smoothing:antialiased;
-    }
-    .container{
-      max-width:1280px;
-      margin:16px auto;
-      padding:16px;
-      display:grid;
-      gap:12px;
-      grid-template-columns: 1fr 360px;
-    }
-    header{ grid-column:1/-1; display:flex; justify-content:space-between; gap:12px; align-items:center;}
-    h1{ margin:0; font-size:20px;}
-    p.lead{ margin:0; color:var(--muted); font-size:13px; }
-
-    .controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-    select, button{ background:var(--card); border:1px solid rgba(255,255,255,0.04); color:inherit; padding:8px 10px; border-radius:10px; cursor:pointer; }
-    .btn-primary{ background: linear-gradient(90deg,var(--primary-color), rgba(30,91,79,0.9)); color:white; border:none; box-shadow:0 8px 24px rgba(30,91,79,0.12); }
-    .card{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.03); box-shadow: 0 8px 30px rgba(2,6,23,0.6); }
-
-    /* Layout */
-    .charts { display:grid; gap:12px; grid-template-rows: auto 260px; }
-    #chart-main { height:460px; }
-    #chart-stack { height:220px; }
-    #chart-heat { height:260px; }
-    #chart-donut { height:260px; }
-
-    .sidebar { display:flex; flex-direction:column; gap:12px; }
-    .kpis { display:grid; gap:8px; grid-template-columns:1fr 1fr; }
-    .kpi { padding:10px; border-radius:10px; background:rgba(255,255,255,0.01); }
-    .mini-sparklines { display:grid; gap:8px; margin-top:8px; }
-    .sparkline { height:70px; padding:6px; border-radius:8px; background:rgba(255,255,255,0.01); display:flex; align-items:center; justify-content:space-between; }
-
-    .legend { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
-
-    footer.small{ grid-column:1/-1; text-align:center; color:var(--muted); font-size:12px; margin-top:6px; }
-
-    @media (max-width:1100px){
-      .container{ grid-template-columns: 1fr; padding:10px; }
-      #chart-main{ height:360px; }
-    }
+    body{ margin:0; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; background:linear-gradient(180deg,#041018,#071422); color:#e6eef3 }
+    .container{ max-width:1280px; margin:16px auto; padding:16px; display:grid; gap:12px; grid-template-columns:1fr 360px; }
+    header{ grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    h1{ margin:0; font-size:20px }
+    p.lead{ margin:0; color:var(--muted); font-size:13px }
+    .controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+    select, button, input[type=checkbox]{ background:var(--card); border:1px solid rgba(255,255,255,0.04); color:inherit; padding:8px 10px; border-radius:10px; cursor:pointer }
+    label.small{ font-size:13px; color:var(--muted); margin-left:6px }
+    .btn-primary{ background:linear-gradient(90deg,var(--primary-color), rgba(30,91,79,0.9)); color:#fff; border:none; box-shadow:0 8px 24px rgba(30,91,79,0.12) }
+    .card{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.03); box-shadow:0 8px 30px rgba(2,6,23,0.6) }
+    .charts{ display:grid; gap:12px; grid-template-rows:auto 260px }
+    #chart-main{ height:460px }
+    #chart-stack{ height:220px }
+    #chart-heat{ height:260px }
+    #chart-donut{ height:260px }
+    .sidebar{ display:flex; flex-direction:column; gap:12px }
+    .kpis{ display:grid; gap:8px; grid-template-columns:1fr 1fr }
+    .kpi{ padding:10px; border-radius:10px; background:rgba(255,255,255,0.01) }
+    .mini-sparklines{ display:grid; gap:8px; margin-top:8px }
+    .sparkline{ height:70px; padding:6px; border-radius:8px; background:rgba(255,255,255,0.01); display:flex; align-items:center; justify-content:space-between }
+    .legend{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px }
+    footer.small{ grid-column:1/-1; text-align:center; color:var(--muted); font-size:12px; margin-top:6px }
+    @media (max-width:1100px){ .container{ grid-template-columns:1fr; padding:10px } #chart-main{ height:360px } }
   </style>
-
-  <!-- ECharts -->
   <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 </head>
 <body>
   <div class="container">
     <header>
       <div>
-        <h1>📊 Evolución Producción Textil — Dashboard (v2)</h1>
-        <p class="lead">Interactivo • timeline/play • múltiples vistas • escala automática al agregar años</p>
+        <h1>📊 Evolución Producción Textil — Dashboard (v3)</h1>
+        <p class="lead">Arreglado: log/normalización + ventas incluidas. Escala automática.</p>
       </div>
 
       <div class="controls">
         <select id="metric">
-          <option value="valor">Valor de producción (miles de pesos corrientes)</option>
-          <option value="cantidad">Cantidad de producción</option>
+          <option value="valor_produccion">Valor de producción (miles de pesos corrientes)</option>
+          <option value="cantidad_produccion">Cantidad de producción</option>
+          <option value="valor_ventas">Valor de ventas netas (miles de pesos corrientes)</option>
+          <option value="cantidad_ventas">Cantidad de ventas</option>
         </select>
-        <select id="aggregation">
-          <option value="por_actividad">Por actividad (series)</option>
-          <option value="total_anual">Total anual (solo totales)</option>
-        </select>
+
+        <label style="display:flex;align-items:center">
+          <input type="checkbox" id="logScale" />
+          <span class="small">Log scale</span>
+        </label>
+
+        <label style="display:flex;align-items:center">
+          <input type="checkbox" id="normalize" />
+          <span class="small">Normalizar (base 100)</span>
+        </label>
+
         <button id="btnPlay" class="btn-primary">▶ Play</button>
         <button id="btnExport" title="Exportar gráfico principal">📷 Exportar</button>
         <button id="btnCSV">⬇ CSV</button>
@@ -97,7 +81,7 @@
         <div id="chart-main"></div>
       </div>
 
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
         <div class="card">
           <strong>Stacked (por año)</strong>
           <div id="chart-stack"></div>
@@ -111,14 +95,14 @@
 
     <aside class="sidebar">
       <div class="card">
-        <strong>Participación último año</strong>
+        <strong>Participación — Año seleccionado</strong>
         <div id="chart-donut"></div>
       </div>
 
       <div class="card">
         <strong>KPI / Totales</strong>
         <div class="kpis" id="kpiContainer" style="margin-top:8px;"></div>
-        <small style="color:var(--muted);display:block;margin-top:8px;">Selecciona la métrica y usa play para animar por años.</small>
+        <small style="color:var(--muted);display:block;margin-top:8px;">Selecciona métrica, activa Log o Normalizar para comparar tendencias.</small>
       </div>
 
       <div class="card">
@@ -127,56 +111,64 @@
       </div>
     </aside>
 
-    <footer class="small">Tip: agrega más filas al arreglo <code>rawData</code> al final del HTML — el dashboard detecta los años y recalcula todo.</footer>
+    <footer class="small">Tip: agrega filas a <code>rawData</code>. El dashboard detecta años y recalcúla todo.</footer>
   </div>
 
   <script>
-    // ===================== RAW DATA (actualiza aquí si agregas años/filas) =====================
-    // NOTA: usa numbers sin comas. Si no hay 'cantidad_produccion' pon 0.
+    // ===================== RAW DATA (completo con ventas) =====================
+    // Usa numbers sin comas. Si falta cantidad, pon 0.
     const rawData = [
-      {anio:2018, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:199648, valor_produccion:24954414},
-      {anio:2018, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:30133, valor_produccion:5631546},
-      {anio:2018, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:26186843, valor_produccion:8407726},
-      {anio:2018, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:10414202},
+      // 2018
+      {anio:2018, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:199648, valor_produccion:24954414, cantidad_ventas:196167, valor_ventas:24794544},
+      {anio:2018, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:30133, valor_produccion:5631546, cantidad_ventas:28814, valor_ventas:5291519},
+      {anio:2018, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:26186843, valor_produccion:8407726, cantidad_ventas:25557374, valor_ventas:8218987},
+      {anio:2018, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:10414202, cantidad_ventas:0, valor_ventas:10398026},
 
-      {anio:2019, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:175691, valor_produccion:23090108},
-      {anio:2019, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:28949, valor_produccion:5368944},
-      {anio:2019, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:23245858, valor_produccion:8619546},
-      {anio:2019, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:11336314},
+      // 2019
+      {anio:2019, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:175691, valor_produccion:23090108, cantidad_ventas:175298, valor_ventas:23073541},
+      {anio:2019, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:28949, valor_produccion:5368944, cantidad_ventas:28313, valor_ventas:5143181},
+      {anio:2019, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:23245858, valor_produccion:8619546, cantidad_ventas:22533241, valor_ventas:8377031},
+      {anio:2019, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:11336314, cantidad_ventas:0, valor_ventas:11319459},
 
-      {anio:2020, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:123524, valor_produccion:17124026},
-      {anio:2020, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:19685, valor_produccion:4025437},
-      {anio:2020, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:20147693, valor_produccion:7846613},
-      {anio:2020, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:10813381},
+      // 2020
+      {anio:2020, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:123524, valor_produccion:17124026, cantidad_ventas:124053, valor_ventas:17249444},
+      {anio:2020, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:19685, valor_produccion:4025437, cantidad_ventas:19347, valor_ventas:3879325},
+      {anio:2020, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:20147693, valor_produccion:7846613, cantidad_ventas:19769280, valor_ventas:7747410},
+      {anio:2020, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:10813381, cantidad_ventas:0, valor_ventas:10789575},
 
-      {anio:2021, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:185995, valor_produccion:23795265},
-      {anio:2021, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:28438, valor_produccion:5708733},
-      {anio:2021, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:26938373, valor_produccion:10184153},
-      {anio:2021, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:10585090},
+      // 2021
+      {anio:2021, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:185995, valor_produccion:23795265, cantidad_ventas:185305, valor_ventas:23685156},
+      {anio:2021, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:28438, valor_produccion:5708733, cantidad_ventas:28780, valor_ventas:5720500},
+      {anio:2021, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:26938373, valor_produccion:10184153, cantidad_ventas:25697116, valor_ventas:9734413},
+      {anio:2021, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:10585090, cantidad_ventas:0, valor_ventas:10518458},
 
-      {anio:2022, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:180121, valor_produccion:25640119},
-      {anio:2022, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:29980, valor_produccion:6382197},
-      {anio:2022, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:23061566, valor_produccion:8949533},
-      {anio:2022, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:12414478},
+      // 2022
+      {anio:2022, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:180121, valor_produccion:25640119, cantidad_ventas:177303, valor_ventas:25393559},
+      {anio:2022, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:29980, valor_produccion:6382197, cantidad_ventas:29525, valor_ventas:6197043},
+      {anio:2022, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:23061566, valor_produccion:8949533, cantidad_ventas:22900874, valor_ventas:8879401},
+      {anio:2022, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:12414478, cantidad_ventas:0, valor_ventas:12451851},
 
-      {anio:2023, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:147570, valor_produccion:21501857},
-      {anio:2023, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:25428, valor_produccion:5086594},
-      {anio:2023, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:22071379, valor_produccion:8570446},
-      {anio:2023, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:13141060},
+      // 2023
+      {anio:2023, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:147570, valor_produccion:21501857, cantidad_ventas:146357, valor_ventas:21390298},
+      {anio:2023, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:25428, valor_produccion:5086594, cantidad_ventas:24848, valor_ventas:4822981},
+      {anio:2023, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:22071379, valor_produccion:8570446, cantidad_ventas:21780225, valor_ventas:8462449},
+      {anio:2023, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:13141060, cantidad_ventas:0, valor_ventas:13137455},
 
-      {anio:2024, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:139766, valor_produccion:19816670},
-      {anio:2024, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:22976, valor_produccion:4274791},
-      {anio:2024, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:22988318, valor_produccion:8586298},
-      {anio:2024, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:14307593},
+      // 2024
+      {anio:2024, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:139766, valor_produccion:19816670, cantidad_ventas:139492, valor_ventas:19790097},
+      {anio:2024, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:22976, valor_produccion:4274791, cantidad_ventas:22622, valor_ventas:4143232},
+      {anio:2024, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:22988318, valor_produccion:8586298, cantidad_ventas:22547345, valor_ventas:8506680},
+      {anio:2024, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:14307593, cantidad_ventas:0, valor_ventas:14251670},
 
-      {anio:2025, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:87645, valor_produccion:12361492},
-      {anio:2025, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:14410, valor_produccion:2405121},
-      {anio:2025, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:14294533, valor_produccion:5300761},
-      {anio:2025, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:10092397},
+      // 2025
+      {anio:2025, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:87645, valor_produccion:12361492, cantidad_ventas:87792, valor_ventas:12375517},
+      {anio:2025, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:14410, valor_produccion:2405121, cantidad_ventas:14349, valor_ventas:2395648},
+      {anio:2025, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:14294533, valor_produccion:5300761, cantidad_ventas:14192996, valor_ventas:5287447},
+      {anio:2025, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:10092397, cantidad_ventas:0, valor_ventas:10102496},
     ];
     // ========================================================================================
 
-    // Helpers y preparación
+    // Helpers
     function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
     const primary = cssVar('--primary-color') || '#1E5B4F';
     const secondary = cssVar('--secondary-color') || '#A6802D';
@@ -187,293 +179,291 @@
     const activities = Array.from(new Set(rawData.map(r=> r.actividad)));
     const nf = new Intl.NumberFormat('es-MX');
 
-    // Build series map
+    // Build series map (with all 4 metrics)
     const seriesMap = {};
     activities.forEach(act => {
+      const rowsForAct = years.map(y => rawData.find(r => r.actividad===act && r.anio===y) || null);
       seriesMap[act] = {
-        clave: rawData.find(r=>r.actividad===act).clave,
-        valores: years.map(y => {
-          const row = rawData.find(r=> r.actividad===act && r.anio===y);
-          return row ? row.valor_produccion : 0;
-        }),
-        cantidades: years.map(y => {
-          const row = rawData.find(r=> r.actividad===act && r.anio===y);
-          return row ? row.cantidad_produccion : 0;
-        })
+        clave: (rowsForAct.find(r=>r) || {}).clave || '',
+        valores: rowsForAct.map(r => r ? r.valor_produccion : 0),
+        cantidades: rowsForAct.map(r => r ? r.cantidad_produccion : 0),
+        valor_ventas: rowsForAct.map(r => r ? r.valor_ventas : 0),
+        cantidad_ventas: rowsForAct.map(r => r ? r.cantidad_ventas : 0)
       };
     });
 
-    // Totales por año
+    // Totales por año (para cualquier métrica)
     function totalsByYear(metric){
       return years.map((y,i) => {
-        let s = 0;
-        activities.forEach(act => {
-          s += (metric === 'valor' ? seriesMap[act].valores[i] : seriesMap[act].cantidades[i]) || 0;
-        });
-        return s;
+        return activities.reduce((acc, act) => {
+          const val = metricKey(metric, act, i);
+          return acc + (val || 0);
+        }, 0);
       });
     }
 
-    // Inicializa charts
+    // Helper to pick value from seriesMap
+    function metricKey(metric, act, idx){
+      const s = seriesMap[act];
+      if(!s) return 0;
+      switch(metric){
+        case 'valor_produccion': return s.valores[idx];
+        case 'cantidad_produccion': return s.cantidades[idx];
+        case 'valor_ventas': return s.valor_ventas[idx];
+        case 'cantidad_ventas': return s.cantidad_ventas[idx];
+        default: return s.valores[idx];
+      }
+    }
+
+    // Charts init
     const main = echarts.init(document.getElementById('chart-main'), null, {renderer:'canvas'});
     const stack = echarts.init(document.getElementById('chart-stack'), null, {renderer:'canvas'});
     const heat = echarts.init(document.getElementById('chart-heat'), null, {renderer:'canvas'});
     const donut = echarts.init(document.getElementById('chart-donut'), null, {renderer:'canvas'});
 
-    // Construir opciones principales
-    function buildMainOptions(metric){
-      const isValor = metric === 'valor';
-      const title = isValor ? 'Valor de producción (miles de pesos corrientes)' : 'Cantidad de producción';
-      document.getElementById('title-main').textContent = `Evolución — ${title}`;
+    // Build main options with log/normalize handling
+    function buildMainOptions(metric, { useLog=false, normalize=false } = {}){
+      const labelMap = {
+        valor_produccion: 'Valor de producción (miles de pesos corrientes)',
+        cantidad_produccion: 'Cantidad de producción',
+        valor_ventas: 'Valor de ventas netas (miles de pesos corrientes)',
+        cantidad_ventas: 'Cantidad de ventas'
+      };
+      document.getElementById('title-main').textContent = `Evolución — ${labelMap[metric]}`;
 
-      const series = activities.map((act, idx) => {
-        return {
-          name: act,
-          type: 'line',
-          smooth: true,
-          stack: null,
-          areaStyle: { opacity: 0.14 },
-          emphasis: { focus: 'series' },
-          showSymbol: true,
-          symbolSize: 8,
-          lineStyle: { width: 3 },
-          itemStyle: { color: palette[idx % palette.length] },
-          data: isValor ? seriesMap[act].valores : seriesMap[act].cantidades
-        };
+      // Prepare series data (raw)
+      const rawSeries = activities.map((act, idx) => {
+        const arr = years.map((y, yi) => {
+          const v = metricKey(metric, act, yi) || 0;
+          return v;
+        });
+        return { name: act, data: arr, color: palette[idx % palette.length] };
       });
+
+      // If normalize: transform each series to index base 100 (first non-zero)
+      const seriesForChart = rawSeries.map(s => {
+        if(normalize){
+          const firstNonZero = s.data.find(v => v > 0);
+          if(!firstNonZero || firstNonZero === 0) {
+            // all zeros — leave as zeros (or show nulls)
+            return { ...s, data: s.data.map(_=>null), itemStyle:{ color: s.color } };
+          }
+          const base = firstNonZero;
+          return { ...s, data: s.data.map(v => v ? (v / base) * 100 : null), itemStyle:{ color: s.color } };
+        } else if(useLog){
+          // For log scale, zeros must be null (can't log(0))
+          return { ...s, data: s.data.map(v => v === 0 ? null : v), itemStyle:{ color: s.color } };
+        } else {
+          return { ...s, itemStyle:{ color: s.color } };
+        }
+      });
+
+      // yAxis configuration
+      const yAxis = useLog ? { type:'log', logBase:10, axisLabel:{ color:'#bcd3df', formatter: v => nf.format(v) } } :
+                              { type:'value', axisLabel:{ color:'#bcd3df', formatter: v => nf.format(v) } };
+
+      const seriesOption = seriesForChart.map(s => ({
+        name: s.name,
+        type: 'line',
+        smooth: true,
+        showSymbol: true,
+        symbolSize: 6,
+        areaStyle: { opacity: 0.12 },
+        lineStyle: { width: 3 },
+        itemStyle: s.itemStyle,
+        data: s.data
+      }));
 
       return {
         backgroundColor: 'transparent',
         color: palette,
         tooltip: {
           trigger: 'axis',
-          axisPointer: { type: 'cross', label: { backgroundColor: '#6a7985' } },
+          axisPointer: { type: 'cross' },
           formatter: params => {
-            const y = params[0].axisValue;
-            let s = `<strong>${y}</strong><br/>`;
+            if(!Array.isArray(params)) return '';
+            const year = params[0].axisValue;
+            let s = `<strong>${year}</strong><br/>`;
             params.forEach(p => {
-              s += `<span style="display:inline-block;margin-right:8px;width:12px;height:12px;background:${p.color};"></span> ${p.seriesName}: <strong>${nf.format(p.data)}</strong><br/>`;
+              const rawVal = p.data;
+              s += `<span style="display:inline-block;margin-right:8px;width:12px;height:12px;background:${p.color};"></span> ${p.seriesName}: <strong>${rawVal == null ? '—' : nf.format(Math.round(rawVal*100)/100)}</strong><br/>`;
             });
             return s;
           }
         },
-        legend: { type:'scroll', top: 44, textStyle:{color:'#cbd5e1'} },
-        toolbox: { feature: { saveAsImage: { title: 'Guardar PNG' } }, right: 12 },
+        legend: { type:'scroll', top:44, textStyle:{color:'#cbd5e1'} },
+        toolbox: { feature: { saveAsImage:{ title:'Guardar PNG' } }, right:12 },
         grid: { left:'6%', right:'8%', top:90, bottom:70 },
         xAxis: { type:'category', boundaryGap:false, data: years, axisLabel:{ color:'#bcd3df' } },
-        yAxis: { type:'value', axisLabel:{ color:'#bcd3df', formatter: v => nf.format(v) }, splitLine: { lineStyle:{ color:'rgba(255,255,255,0.03)' } } },
+        yAxis,
         dataZoom: [{ type:'inside', start:0, end:100 }, { start:0, end:100 }],
-        series
+        series: seriesOption
       };
     }
 
-    // Stacked bars
+    // build stacked for metric (stack not compatible with log or normalize)
     function buildStackOptions(metric){
-      const isValor = metric === 'valor';
-      const series = activities.map((act, idx) => ({
+      const seriesOpt = activities.map((act, idx) => ({
         name: act,
         type: 'bar',
         stack: 'total',
-        emphasis: { focus: 'series' },
         itemStyle:{ color: palette[idx % palette.length] },
-        data: isValor ? seriesMap[act].valores : seriesMap[act].cantidades
+        emphasis:{ focus:'series' },
+        data: years.map((y, yi) => metricKey(metric, act, yi) || 0)
       }));
       return {
-        backgroundColor: 'transparent',
-        tooltip: { trigger:'axis', axisPointer:{ type:'shadow' }, formatter: params => {
-          const year = params[0].axisValue;
-          let s = `<strong>${year}</strong><br/>`;
-          params.forEach(p => s += `<div><span style="display:inline-block;margin-right:8px;width:12px;height:12px;background:${p.color};"></span> ${p.seriesName}: <strong>${nf.format(p.value)}</strong></div>`);
-          const total = params.reduce((a,b)=>a+(b.value||0),0);
-          s += `<div style="margin-top:6px"><strong>Total: ${nf.format(total)}</strong></div>`;
-          return s;
-        }},
+        backgroundColor:'transparent',
+        tooltip: { trigger:'axis', axisPointer:{ type:'shadow' } },
         legend:{ show:false },
         grid:{ left:'3%', right:'4%', bottom:'3%', top:10 },
         xAxis:{ type:'category', data: years, axisLabel:{ color:'#bcd3df' } },
         yAxis:{ axisLabel:{ color:'#bcd3df', formatter: v => nf.format(v) } },
-        series
+        series: seriesOpt
       };
     }
 
-    // Heatmap: activity x year
+    // heatmap for metric
     function buildHeatOptions(metric){
-      const isValor = metric === 'valor';
-      // heat data as [x = yearIdx, y = activityIdx, value]
       const data = [];
       activities.forEach((act, ai) => {
         years.forEach((y, yi) => {
-          const value = isValor ? seriesMap[act].valores[yi] : seriesMap[act].cantidades[yi];
-          data.push([yi, ai, value || 0]);
+          const value = metricKey(metric, act, yi) || 0;
+          data.push([yi, ai, value]);
         });
       });
       return {
-        tooltip: {
-          formatter: p => {
-            const yi = p.data[0], ai = p.data[1];
-            return `<strong>${years[yi]}</strong><br/>${activities[ai]}: <strong>${nf.format(p.data[2])}</strong>`;
-          }
-        },
+        tooltip: { formatter: p => `<strong>${years[p.data[0]]}</strong><br/>${activities[p.data[1]]}: <strong>${nf.format(p.data[2])}</strong>` },
         grid:{ left:'10%', right:'6%', top:20, bottom:20 },
-        xAxis: { type:'category', data: years, axisLabel:{ color:'#bcd3df' } },
-        yAxis: { type:'category', data: activities, axisLabel:{ color:'#bcd3df' } },
-        visualMap: {
-          min: 0,
-          max: Math.max(...data.map(d=>d[2])) || 1,
-          calculable: true,
-          orient: 'vertical',
-          right: 6,
-          top: 'center',
-          textStyle:{ color:'#cbd5e1' }
-        },
-        series: [{
-          name:'heat',
-          type:'heatmap',
-          data: data,
-          label: { show:false },
-          itemStyle: { borderColor: 'rgba(0,0,0,0.2)', borderWidth: 1 }
-        }]
+        xAxis:{ type:'category', data: years, axisLabel:{ color:'#bcd3df' } },
+        yAxis:{ type:'category', data: activities, axisLabel:{ color:'#bcd3df' } },
+        visualMap: { min:0, max: Math.max(...data.map(d=>d[2])) || 1, calculable:true, orient:'vertical', right:6, top:'center', textStyle:{ color:'#cbd5e1' } },
+        series:[{ name:'heat', type:'heatmap', data, label:{ show:false }, itemStyle:{ borderColor:'rgba(0,0,0,0.2)', borderWidth:1 } }]
       };
     }
 
-    // Donut for last year
-    function buildDonutOptions(metric){
-      const isValor = metric === 'valor';
-      const last = Math.max(...years);
+    // donut for year (or selectedYear override)
+    function buildDonutOptions(metric, selectedYear = Math.max(...years)){
       const data = activities.map((act, i) => {
-        const row = rawData.find(r=> r.actividad === act && r.anio === last);
-        const val = row ? (isValor ? row.valor_produccion : row.cantidad_produccion) : 0;
+        const row = rawData.find(r => r.actividad === act && r.anio === selectedYear) || {cantidad_produccion:0, valor_produccion:0, cantidad_ventas:0, valor_ventas:0};
+        const val = (metric === 'valor_produccion' ? row.valor_produccion :
+                     metric === 'cantidad_produccion' ? row.cantidad_produccion :
+                     metric === 'valor_ventas' ? row.valor_ventas :
+                     metric === 'cantidad_ventas' ? row.cantidad_ventas : 0);
         return { name: act, value: val, itemStyle:{ color: palette[i % palette.length] } };
       });
       return {
-        tooltip:{ trigger:'item', formatter: '{b}: <strong>{c}</strong> ({d}%)' },
+        tooltip:{ trigger:'item', formatter:'{b}: <strong>{c}</strong> ({d}%)' },
         legend:{ orient:'vertical', left:'left', textStyle:{ color:'#cbd5e1' } },
-        series: [{
-          type:'pie',
-          radius: ['40%','70%'],
-          avoidLabelOverlap:false,
-          label:{ show:true, formatter: '{b}\n{d}%', color:'#e6eef3' },
-          data
-        }]
+        series:[{ type:'pie', radius:['40%','70%'], avoidLabelOverlap:false, label:{ show:true, formatter:'{b}\n{d}%', color:'#e6eef3' }, data }]
       };
     }
 
-    // Render inicial y dinámico
+    // Render engine
     const metricSel = document.getElementById('metric');
-    const aggSel = document.getElementById('aggregation');
+    const logChk = document.getElementById('logScale');
+    const normChk = document.getElementById('normalize');
 
     function renderAll(){
       const metric = metricSel.value;
-      main.setOption(buildMainOptions(metric));
+      const useLog = logChk.checked && (metric === 'valor_produccion' || metric === 'valor_ventas' || metric === 'cantidad_produccion' || metric === 'cantidad_ventas');
+      const normalize = normChk.checked;
+      // For stacked, we always use linear and raw values
+      main.setOption(buildMainOptions(metric, { useLog, normalize }));
       stack.setOption(buildStackOptions(metric));
       heat.setOption(buildHeatOptions(metric));
-      donut.setOption(buildDonutOptions(metric));
+      donut.setOption(buildDonutOptions(metric, Math.max(...years)));
       renderLegend();
       renderKPIs(metric);
-      renderSparklines(metric);
+      renderSparklines(metric, { useLog, normalize });
     }
 
-    // Leyenda visual
+    // Legend
     function renderLegend(){
       const container = document.getElementById('legendContainer');
       container.innerHTML = '';
       activities.forEach((act,i) => {
         const pill = document.createElement('div');
-        pill.style.display='flex';
-        pill.style.alignItems='center';
-        pill.style.gap='8px';
-        pill.style.padding='6px 8px';
-        pill.style.borderRadius='999px';
-        pill.style.background='rgba(255,255,255,0.01)';
-        pill.style.fontSize='12px';
-        pill.style.cursor='pointer';
-        pill.title = act;
-        const sw = document.createElement('span');
-        sw.style.width='12px'; sw.style.height='12px'; sw.style.display='inline-block';
-        sw.style.background = palette[i % palette.length];
-        sw.style.borderRadius='3px';
+        pill.style.display='flex'; pill.style.alignItems='center'; pill.style.gap='8px';
+        pill.style.padding='6px 8px'; pill.style.borderRadius='999px'; pill.style.background='rgba(255,255,255,0.01)';
+        pill.style.fontSize='12px'; pill.style.cursor='pointer'; pill.title = act;
+        const sw = document.createElement('span'); sw.style.width='12px'; sw.style.height='12px'; sw.style.display='inline-block'; sw.style.background = palette[i % palette.length]; sw.style.borderRadius='3px';
         pill.appendChild(sw);
-        const txt = document.createElement('span');
-        txt.textContent = `${seriesMap[act].clave} · ${act.split(' ')[0]}`;
+        const txt = document.createElement('span'); txt.textContent = `${seriesMap[act].clave} · ${act.split(' ')[0]}`;
         pill.appendChild(txt);
-        pill.addEventListener('click', () => {
-          // toggle series visibility on main chart
+        pill.onclick = () => {
           const opt = main.getOption();
-          opt.legend = opt.legend || {};
-          // find series index
           const idx = opt.series.findIndex(s => s.name === act);
           if(idx >= 0){
             opt.series[idx].lineStyle = opt.series[idx].lineStyle || {};
-            opt.series[idx].lineStyle.opacity = opt.series[idx].lineStyle.opacity === 0 ? 1 : 0;
             opt.series[idx].itemStyle = opt.series[idx].itemStyle || {};
-            opt.series[idx].itemStyle.opacity = opt.series[idx].itemStyle.opacity === 0 ? 1 : 0;
+            const hidden = opt.series[idx].lineStyle.opacity === 0 || opt.series[idx].itemStyle.opacity === 0;
+            opt.series[idx].lineStyle.opacity = hidden ? 1 : 0.15;
+            opt.series[idx].itemStyle.opacity = hidden ? 1 : 0.15;
             main.setOption(opt);
           }
-        });
+        };
         container.appendChild(pill);
       });
     }
 
-    // KPIs: Totales por año (muestra el último, cambio %)
+    // KPIs
     function renderKPIs(metric){
       const totals = totalsByYear(metric);
-      const lastIdx = totals.length - 1;
-      const last = totals[lastIdx];
-      const prev = totals[lastIdx - 1] || 0;
+      const last = totals[totals.length - 1] || 0;
+      const prev = totals[totals.length - 2] || 0;
       const diff = prev === 0 ? 0 : ((last - prev) / prev) * 100;
-
-      const kpiContainer = document.getElementById('kpiContainer');
-      kpiContainer.innerHTML = '';
+      const kpiContainer = document.getElementById('kpiContainer'); kpiContainer.innerHTML = '';
 
       const a = document.createElement('div'); a.className='kpi';
-      a.innerHTML = `<div style="font-size:13px;color:var(--muted)">Total ${metric === 'valor' ? 'valor (miles)' : 'cantidad'}</div><div style="font-size:18px;font-weight:700">${nf.format(last)}</div><div style="color:${diff>=0? '#8ef':'#f88'};font-size:12px">${diff>=0? '+'+diff.toFixed(1)+'%': diff.toFixed(1)+'%'}</div>`;
+      a.innerHTML = `<div style="font-size:13px;color:var(--muted)">Total ${metric.includes('valor')? 'valor (miles)': 'cantidad'}</div><div style="font-size:18px;font-weight:700">${nf.format(last)}</div><div style="color:${diff>=0? '#8ef':'#f88'};font-size:12px">${diff>=0? '+'+diff.toFixed(1)+'%': diff.toFixed(1)+'%'}</div>`;
       kpiContainer.appendChild(a);
 
       const b = document.createElement('div'); b.className='kpi';
       b.innerHTML = `<div style="font-size:13px;color:var(--muted)">Años en vista</div><div style="font-size:18px;font-weight:700">${years.length}</div><div style="color:var(--muted);font-size:12px">Desde ${years[0]} hasta ${years[years.length-1]}</div>`;
       kpiContainer.appendChild(b);
 
-      // Totales por actividad (último año)
       activities.forEach((act,i) => {
-        const row = rawData.find(r => r.actividad === act && r.anio === years[years.length-1]) || {cantidad_produccion:0, valor_produccion:0};
-        const node = document.createElement('div'); node.className='kpi';
-        node.style.gridColumn = '1/-1';
+        const row = rawData.find(r => r.actividad === act && r.anio === years[years.length-1]) || {cantidad_produccion:0, valor_produccion:0, cantidad_ventas:0, valor_ventas:0};
+        const node = document.createElement('div'); node.className='kpi'; node.style.gridColumn='1/-1';
+        const value = metric === 'valor_produccion' ? row.valor_produccion : metric === 'cantidad_produccion' ? row.cantidad_produccion : metric === 'valor_ventas' ? row.valor_ventas : row.cantidad_ventas;
         node.innerHTML = `<div style="font-size:13px;color:var(--muted)">${act} (${seriesMap[act].clave})</div>
                           <div style="display:flex;justify-content:space-between;align-items:center">
-                            <div style="font-weight:700">${nf.format(metric==='valor'? row.valor_produccion : row.cantidad_produccion)}</div>
+                            <div style="font-weight:700">${nf.format(value)}</div>
                             <div style="font-size:12px;color:var(--muted)">${years[years.length-1]}</div>
                           </div>`;
         kpiContainer.appendChild(node);
       });
     }
 
-    // Sparklines por actividad (mini charts)
-    function renderSparklines(metric){
-      const sparks = document.getElementById('sparks');
-      sparks.innerHTML = '';
+    // Sparklines
+    function renderSparklines(metric, { useLog=false, normalize=false } = {}){
+      const sparks = document.getElementById('sparks'); sparks.innerHTML = '';
       activities.forEach((act,i) => {
         const wrapper = document.createElement('div'); wrapper.className='sparkline';
         const left = document.createElement('div'); left.style.flex='1';
-        const right = document.createElement('div'); right.style.width='96px'; right.style.textAlign='right';
-        const title = document.createElement('div'); title.style.fontSize='12px'; title.style.color='var(--muted)'; title.textContent = `${seriesMap[act].clave}`;
-        const val = document.createElement('div'); val.style.fontWeight='700'; val.style.fontSize='13px';
-        const lastVal = metric === 'valor' ? seriesMap[act].valores[seriesMap[act].valores.length-1] : seriesMap[act].cantidades[seriesMap[act].cantidades.length-1];
-        val.textContent = nf.format(lastVal);
-        left.appendChild(title);
-        left.appendChild(val);
-        wrapper.appendChild(left);
+        const title = document.createElement('div'); title.style.fontSize='12px'; title.style.color='var(--muted)'; title.textContent = seriesMap[act].clave;
+        const lastVal = metricKey(metric, act, years.length - 1) || 0;
+        const val = document.createElement('div'); val.style.fontWeight='700'; val.style.fontSize='13px'; val.textContent = nf.format(lastVal);
+        left.appendChild(title); left.appendChild(val);
         const chartBox = document.createElement('div'); chartBox.style.width='140px'; chartBox.style.height='70px';
-        wrapper.appendChild(chartBox);
+        wrapper.appendChild(left); wrapper.appendChild(chartBox);
         sparks.appendChild(wrapper);
-        // init small echarts
         const mini = echarts.init(chartBox, null, {renderer:'canvas'});
+        // build mini series data (apply normalize or useLog treatment)
+        let data = years.map((y, yi) => metricKey(metric, act, yi) || 0);
+        if(normalize){
+          const firstNonZero = data.find(v => v > 0);
+          data = firstNonZero ? data.map(v => v ? (v/firstNonZero)*100 : null) : data.map(_=>null);
+        } else if(useLog){
+          data = data.map(v => v === 0 ? null : v);
+        }
         mini.setOption({
           grid:{ left:6, right:6, top:6, bottom:6 },
           xAxis:{ show:false, type:'category', data: years },
           yAxis:{ show:false, type:'value' },
           series:[{
             type:'line',
-            data: metric === 'valor' ? seriesMap[act].valores : seriesMap[act].cantidades,
+            data,
             smooth:true,
             lineStyle:{ width:2, color: palette[i % palette.length] },
             areaStyle:{ opacity: 0.06 }
@@ -482,107 +472,77 @@
       });
     }
 
-    // CSV download
+    // CSV download includes ventas
     document.getElementById('btnCSV').addEventListener('click', () => {
-      const keys = ['anio','clave','actividad','cantidad_produccion','valor_produccion'];
+      const keys = ['anio','clave','actividad','cantidad_produccion','valor_produccion','cantidad_ventas','valor_ventas'];
       const rows = [keys.join(',')];
       rawData.forEach(r => rows.push(keys.map(k => (r[k] == null ? '' : String(r[k]).replace(/,/g,''))).join(',')));
       const csv = rows.join('\n');
       const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'produccion_textil_dataset.csv'; a.click();
+      const a = document.createElement('a'); a.href = url; a.download = 'produccion_textil_dataset_v3.csv'; a.click();
       URL.revokeObjectURL(url);
     });
 
-    // Export main
+    // Export principal
     document.getElementById('btnExport').addEventListener('click', () => {
       const url = main.getDataURL({ pixelRatio:2, backgroundColor:'#071422' });
-      const a = document.createElement('a'); a.href = url; a.download = 'evolucion_produccion.png'; a.click();
+      const a = document.createElement('a'); a.href = url; a.download = 'evolucion_produccion_v3.png'; a.click();
     });
 
-    // Play animation that highlights year on charts (timeline)
-    let playTimer = null;
-    let playIndex = 0;
+    // Play timeline: centers dataZoom and updates donut to show that year
+    let playTimer = null; let playIndex = 0;
     function playToggle(){
       const btn = document.getElementById('btnPlay');
-      if(playTimer){
-        clearInterval(playTimer); playTimer = null; btn.textContent = '▶ Play';
-        main.dispatchAction({type:'downplay'});
-        return;
-      }
-      btn.textContent = '⏸ Pausa';
+      if(playTimer){ clearInterval(playTimer); playTimer = null; btn.textContent='▶ Play'; return; }
+      btn.textContent='⏸ Pausa';
       playIndex = 0;
       playTimer = setInterval(() => {
         const year = years[playIndex % years.length];
-        // highlight vertical mark by using dataZoom to center year
         const pos = (playIndex/(years.length-1))*100;
-        main.dispatchAction({ type: 'dataZoom', start: Math.max(0, pos-10), end: Math.min(100, pos+10) });
-        // update donut to show selected year as focus by updating donut data (use selected year)
-        updateDonutForYear(year);
+        main.dispatchAction({ type:'dataZoom', start: Math.max(0, pos-10), end: Math.min(100, pos+10) });
+        donut.setOption(buildDonutOptions(metricSel.value, year));
         playIndex++;
-      }, 1000);
+      }, 900);
     }
-
-    function updateDonutForYear(year){
-      const metric = metricSel.value;
-      const isValor = metric === 'valor';
-      const data = activities.map((act,i) => {
-        const row = rawData.find(r=> r.actividad === act && r.anio === year) || {cantidad_produccion:0, valor_produccion:0};
-        return { name: act, value: isValor ? row.valor_produccion : row.cantidad_produccion, itemStyle:{ color: palette[i % palette.length] } };
-      });
-      donut.setOption({ series:[{ data }], title: { text: `Participación ${year}` }});
-    }
-
-    // Play button
     document.getElementById('btnPlay').addEventListener('click', playToggle);
 
-    // Metric / aggregation change
-    metricSel.addEventListener('change', () => renderAll());
-    aggSel.addEventListener('change', () => {
-      // if total_anual, modify main to show totals only
-      if(aggSel.value === 'total_anual'){
-        const totals = totalsByYear(metricSel.value);
-        main.setOption({
-          title:{ text: 'Total anual' },
-          series: [{
-            name:'Total',
-            type:'line',
-            smooth:true,
-            areaStyle:{ opacity:0.16 },
-            data: totals,
-            itemStyle:{ color: primary },
-            lineStyle:{ width:3 }
-          }],
-          legend: { show:false }
-        });
-      } else {
-        renderAll();
+    // metric/checkbox event handlers
+    metricSel.addEventListener('change', renderAll);
+    logChk.addEventListener('change', () => {
+      // If log checked but all values are zero for selected metric, show alert and uncheck
+      const metric = metricSel.value;
+      const maxVal = Math.max(...years.flatMap((y,i) => activities.map(a => metricKey(metric,a,i))));
+      if(logChk.checked && maxVal <= 0){
+        alert('No hay valores positivos para usar escala log. Desactivando Log.');
+        logChk.checked = false;
       }
+      renderAll();
     });
+    normChk.addEventListener('change', renderAll);
 
-    // Initial render
-    renderAll();
-
-    // Responsive
-    window.addEventListener('resize', ()=>{ main.resize(); stack.resize(); heat.resize(); donut.resize(); });
-
-    // Interactions: clicking donut filters main (toggle series)
+    // donut click toggles main series visibility
     donut.on('click', params => {
       const name = params.name;
       const opt = main.getOption();
       const idx = opt.series.findIndex(s => s.name === name);
       if(idx >= 0){
-        const hidden = opt.series[idx].lineStyle && opt.series[idx].lineStyle.opacity === 0.15;
         opt.series[idx].lineStyle = opt.series[idx].lineStyle || {};
         opt.series[idx].itemStyle = opt.series[idx].itemStyle || {};
+        const hidden = opt.series[idx].lineStyle.opacity === 0.15;
         opt.series[idx].lineStyle.opacity = hidden ? 1 : 0.15;
         opt.series[idx].itemStyle.opacity = hidden ? 1 : 0.15;
         main.setOption(opt);
       }
     });
 
-    // Start with donut labeled last year
-    updateDonutForYear(Math.max(...years));
+    // Initial render
+    function renderAllAndResize(){
+      renderAll();
+      main.resize(); stack.resize(); heat.resize(); donut.resize();
+    }
+    renderAllAndResize();
+    window.addEventListener('resize', renderAllAndResize);
   </script>
 </body>
 </html>
