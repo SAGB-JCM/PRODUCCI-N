@@ -378,7 +378,7 @@
 
     // donut click toggles series in main (skip 'Otros')
     donut.on('click', params => { const name = params.name; if(name==='Otros') return; const opt = main.getOption(); const idx = opt.series.findIndex(s=> s.name === name); if(idx>=0){ opt.series[idx].lineStyle = opt.series[idx].lineStyle || {}; opt.series[idx].itemStyle = opt.series[idx].itemStyle || {}; const hidden = opt.series[idx].lineStyle.opacity === 0.15; opt.series[idx].lineStyle.opacity = hidden ? 1 : 0.15; opt.series[idx].itemStyle.opacity = hidden ? 1 : 0.15; main.setOption(opt); } });
-
+ 
     metricSel.addEventListener('change', renderAll);
     logChk.addEventListener('change', renderAll);
     normChk.addEventListener('change', renderAll);
