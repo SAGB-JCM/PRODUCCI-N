@@ -5,10 +5,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Dashboard — Evolución Producción Textil (v4.1 — Fix Totales + Donut)</title>
   <style>
+
+    /* body { zoom: 75%; } /* Causa probable de problemas de interacción con gráficas. Considera eliminar o reemplazar con transform: scale() o ajustar tamaños base. */
+    .dashboard-wrapper {
+      transform: scale(0.75);
+      transform-origin: top left;
+      width: 133.33%; /* 100% / 0.75 */
+    }
+    
     :root{
       --primary-color:#1E5B4F; --secondary-color:#A6802D; --accent-color:#9C2348; /* Colores principales se mantienen */
       --bg:#f8f9fa; --card: #ffffff; --muted:#6c757d; --text:#212529; /* Paleta de colores clara */
     }
+
     *{box-sizing:border-box}
     body{ margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial; background:linear-gradient(180deg, #f4f7f9, #e9edf2); color:var(--text); -webkit-font-smoothing:antialiased;}
     .container{ max-width:1320px; margin:16px auto; padding:16px; display:grid; gap:16px; grid-template-columns:1fr 360px; }
@@ -27,12 +36,29 @@
     .kpis{ display:grid; gap:8px; grid-template-columns:1fr 1fr } .kpi{ padding:10px; border-radius:10px; background:rgba(255,255,255,0.01) }
     .mini-sparklines{ display:grid; gap:8px; margin-top:8px } .sparkline{ height:70px; padding:6px; border-radius:8px; background:rgba(255,255,255,0.01); display:flex; align-items:center; justify-content:space-between }
     .legend{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; max-height:60px; overflow:auto; padding-right:6px; }
-    footer.small{ grid-column:1/-1; text-align:center; color:var(--muted); font-size:12px; margin-top:6px }
+    footer.small{ grid-column:1/-1; text-align:center; color:var(--muted); font-size:12px; margin-top:16px; padding-top: 16px; border-top: 1px solid #e9ecef; }
     @media (max-width:1100px){ .container{ grid-template-columns:1fr; padding:10px } #chart-main{ height:380px } }
+
+    /* Tab Styles */
+    .tabs { padding: 0 16px; max-width: 1320px; margin: 16px auto 0; }
+    .tab-buttons { border-bottom: 1px solid #dee2e6; }
+    .tab-btn { background: transparent; border: none; padding: 10px 16px; cursor: pointer; font-size: 15px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 600; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 </head>
 <body>
+<div class="dashboard-wrapper">
+  <div class="tabs">
+    <div class="tab-buttons">
+      <button class="tab-btn active" data-tab="produccion">Producción Industria Textil</button>
+      <button class="tab-btn" data-tab="dependencias">Dependencias - Uniformes</button>
+    </div>
+  </div>
+
+<div id="produccion" class="tab-pane active">
   <div class="container">
     <header>
       <div>
@@ -85,12 +111,20 @@
     <aside class="sidebar">
       <div class="card"><strong>Stacked (por año)</strong><div id="chart-stack"></div></div>
 
-      <div class="card"><strong>KPI / Totales</strong><div class="kpis" id="kpiContainer" style="margin-top:8px;"></div><small style="color:var(--muted);display:block;margin-top:8px;">Activa "Mostrar Totales" para la serie agregada.</small></div>
+      <div class="card"><strong>KPI / Totales</strong><div class="kpis" id="kpiContainer" style="margin-top:8px;"></div><small style="color:var(--muted);display:block;margin-top:8px;">Activa "Mostrar Totales" para la serie agregada.</small></div> 
       <div class="card"><strong>Tendencias Individuales por Actividad</strong><div class="mini-sparklines" id="sparks"></div></div>
     </aside>
 
     <footer class="small">Dashboard interactivo para el análisis de la producción textil.</footer>
   </div>
+</div>
+
+<div id="dependencias" class="tab-pane">
+  <div class="container" style="min-height: 70vh; display: flex; align-items: center; justify-content: center;">
+      <p style="color: var(--muted); font-size: 1.2rem;">Contenido para "Dependencias - Uniformes" aparecerá aquí.</p>
+  </div>
+</div>
+</div>
 
   <script>
     /* === rawData (misma estructura que antes) === */
@@ -388,8 +422,17 @@
     normChk.addEventListener('change', renderAll);
     showTotalsChk.addEventListener('change', renderAll);
     otrosThresholdInput.addEventListener('change', renderAll);
+    
+    // Tab switching logic
+    document.querySelector('.tab-buttons').addEventListener('click', (e) => {
+      if (e.target.matches('.tab-btn')) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+        e.target.classList.add('active');
+        document.getElementById(e.target.dataset.tab).classList.add('active');
+      }
+    });
 
-    function init(){ renderAll(); window.addEventListener('resize', ()=>{ main.resize(); stack.resize(); heat.resize(); donut.resize(); }); }
     function init(){ renderAll(); window.addEventListener('resize', ()=>{ main.resize(); stack.resize(); donut.resize(); }); }    init();
   </script>
 </body>
