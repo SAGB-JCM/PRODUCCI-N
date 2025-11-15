@@ -120,14 +120,59 @@
 </div>
 
 <div id="dependencias" class="tab-pane">
-  <div class="container" style="min-height: 70vh; display: flex; align-items: center; justify-content: center;">
-      <p style="color: var(--muted); font-size: 1.2rem;">Contenido para "Dependencias - Uniformes" aparecerá aquí.</p>
+  <!-- INICIO: CONTENIDO PESTAÑA DEPENDENCIAS -->
+  <div class="container">
+    <header>
+      <div>
+        <h1>📈 Dashboard de Compras y Contratos</h1>
+        <p class="lead">Análisis de compras por Institución y contratos por Proveedor en los últimos años.</p>
+      </div>
+      <div class="controls">
+        <div class="select-wrap">
+          <select id="dep-metric-select" title="Selecciona vista">
+            <option value="instituciones">Compras por Institución</option>
+            <option value="proveedores">Contratos por Proveedor</option>
+          </select>
+        </div>
+        <button id="btnExport-dep" class="btn" title="Exportar PNG">📷</button>
+      </div>
+    </header>
+
+    <section class="charts" style="grid-template-rows: auto auto 260px;">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong id="title-main-dep">Evolución de Compras/Contratos</strong>
+        </div>
+        <div id="chart-main-dep" style="height:520px"></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <strong id="title-donut-dep">Distribución (Último Año)</strong>
+          <div style="display:flex;gap:8px;align-items:center">
+            <label style="font-size:12px;color:var(--muted)">Umbral "Otros" %:</label>
+            <input id="otrosThreshold-dep" type="number" min="0" max="20" step="0.5" value="2" style="width:72px" />
+          </div>
+        </div>
+        <div id="chart-donut-dep" style="height:320px"></div>
+        <small style="color:var(--muted)">"Otros" agrupa entidades con participación menor al umbral.</small>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="card"><strong id="title-stack-dep">Composición por Año</strong><div id="chart-stack-dep" style="height:220px"></div></div>
+      <div class="card"><strong>KPI / Totales</strong><div class="kpis" id="kpiContainer-dep" style="margin-top:8px;"></div></div>
+      <div class="card"><strong id="title-sparks-dep">Tendencias Individuales</strong><div class="mini-sparklines" id="sparks-dep"></div></div>
+    </aside>
+
+    <footer class="small">Dashboard interactivo para el análisis de compras y contrataciones.</footer>
   </div>
+  <!-- FIN: CONTENIDO PESTAÑA DEPENDENCIAS -->
 </div>
 </div>
 
   <script>
-    /* === rawData (misma estructura que antes) === */
+    /* === DATOS PESTAÑA 1: PRODUCCIÓN === */
     const rawData = [
       // (usa exactamente tus filas; acorté aquí por brevedad en el snippet, pega tu tabla completa)
       {anio:2018, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:199648, valor_produccion:24954414, cantidad_ventas:196167, valor_ventas:24794544},
@@ -164,6 +209,50 @@
       {anio:2025, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:10092397, cantidad_ventas:0, valor_ventas:10102496},
     ];
 
+    /* === DATOS PESTAÑA 2: DEPENDENCIAS Y PROVEEDORES === */
+    const rawDataInstituciones = [
+      { anio: 2021, entidad: "IMSS", valor: 459 }, { anio: 2022, entidad: "IMSS", valor: 344 }, { anio: 2023, entidad: "IMSS", valor: 0 }, { anio: 2024, entidad: "IMSS", valor: 74 }, { anio: 2025, entidad: "IMSS", valor: 229 },
+      { anio: 2021, entidad: "IMSSBIENESTAR", valor: 0 }, { anio: 2022, entidad: "IMSSBIENESTAR", valor: 0 }, { anio: 2023, entidad: "IMSSBIENESTAR", valor: 0 }, { anio: 2024, entidad: "IMSSBIENESTAR", valor: 0 }, { anio: 2025, entidad: "IMSSBIENESTAR", valor: 858 },
+      { anio: 2021, entidad: "SADER", valor: 0 }, { anio: 2022, entidad: "SADER", valor: 0 }, { anio: 2023, entidad: "SADER", valor: 80 }, { anio: 2024, entidad: "SADER", valor: 167 }, { anio: 2025, entidad: "SADER", valor: 174 },
+      { anio: 2021, entidad: "SEMAR", valor: 0 }, { anio: 2022, entidad: "SEMAR", valor: 25 }, { anio: 2023, entidad: "SEMAR", valor: 0 }, { anio: 2024, entidad: "SEMAR", valor: 99 }, { anio: 2025, entidad: "SEMAR", valor: 80 },
+      { anio: 2021, entidad: "ISSSTE", valor: 46 }, { anio: 2022, entidad: "ISSSTE", valor: 0 }, { anio: 2023, entidad: "ISSSTE", valor: 0 }, { anio: 2024, entidad: "ISSSTE", valor: 0 }, { anio: 2025, entidad: "ISSSTE", valor: 95 },
+      { anio: 2021, entidad: "SEDENA", valor: 0 }, { anio: 2022, entidad: "SEDENA", valor: 13 }, { anio: 2023, entidad: "SEDENA", valor: 0 }, { anio: 2024, entidad: "SEDENA", valor: 86 }, { anio: 2025, entidad: "SEDENA", valor: 0 },
+      { anio: 2021, entidad: "IPN", valor: 0 }, { anio: 2022, entidad: "IPN", valor: 0 }, { anio: 2023, entidad: "IPN", valor: 0 }, { anio: 2024, entidad: "IPN", valor: 83 }, { anio: 2025, entidad: "IPN", valor: 0 },
+      { anio: 2021, entidad: "SEP", valor: 0 }, { anio: 2022, entidad: "SEP", valor: 0 }, { anio: 2023, entidad: "SEP", valor: 50 }, { anio: 2024, entidad: "SEP", valor: 0 }, { anio: 2025, entidad: "SEP", valor: 0 },
+      { anio: 2021, entidad: "DICONSA", valor: 49 }, { anio: 2022, entidad: "DICONSA", valor: 0 }, { anio: 2023, entidad: "DICONSA", valor: 0 }, { anio: 2024, entidad: "DICONSA", valor: 0 }, { anio: 2025, entidad: "DICONSA", valor: 0 },
+      { anio: 2021, entidad: "INPER", valor: 44 }, { anio: 2022, entidad: "INPER", valor: 0 }, { anio: 2023, entidad: "INPER", valor: 0 }, { anio: 2024, entidad: "INPER", valor: 0 }, { anio: 2025, entidad: "INPER", valor: 0 },
+      { anio: 2021, entidad: "SEGOB", valor: 0 }, { anio: 2022, entidad: "SEGOB", valor: 0 }, { anio: 2023, entidad: "SEGOB", valor: 40 }, { anio: 2024, entidad: "SEGOB", valor: 0 }, { anio: 2025, entidad: "SEGOB", valor: 0 },
+      { anio: 2021, entidad: "INBAL", valor: 33 }, { anio: 2022, entidad: "INBAL", valor: 0 }, { anio: 2023, entidad: "INBAL", valor: 0 }, { anio: 2024, entidad: "INBAL", valor: 0 }, { anio: 2025, entidad: "INBAL", valor: 0 },
+      { anio: 2021, entidad: "SSA", valor: 0 }, { anio: 2022, entidad: "SSA", valor: 0 }, { anio: 2023, entidad: "SSA", valor: 31 }, { anio: 2024, entidad: "SSA", valor: 0 }, { anio: 2025, entidad: "SSA", valor: 0 },
+      { anio: 2021, entidad: "CULTURA", valor: 0 }, { anio: 2022, entidad: "CULTURA", valor: 0 }, { anio: 2023, entidad: "CULTURA", valor: 27 }, { anio: 2024, entidad: "CULTURA", valor: 0 }, { anio: 2025, entidad: "CULTURA", valor: 0 },
+      { anio: 2021, entidad: "ESSA", valor: 0 }, { anio: 2022, entidad: "ESSA", valor: 16 }, { anio: 2023, entidad: "ESSA", valor: 0 }, { anio: 2024, entidad: "ESSA", valor: 0 }, { anio: 2025, entidad: "ESSA", valor: 0 },
+      { anio: 2021, entidad: "HG", valor: 0 }, { anio: 2022, entidad: "HG", valor: 13 }, { anio: 2023, entidad: "HG", valor: 0 }, { anio: 2024, entidad: "HG", valor: 0 }, { anio: 2025, entidad: "HG", valor: 0 },
+    ];
+
+    const rawDataProveedores = [
+      { anio: 2021, entidad: "ROGERI SA DE CV", valor: 104 }, { anio: 2022, entidad: "ROGERI SA DE CV", valor: 211 }, { anio: 2023, entidad: "ROGERI SA DE CV", valor: 0 }, { anio: 2024, entidad: "ROGERI SA DE CV", valor: 0 }, { anio: 2025, entidad: "ROGERI SA DE CV", valor: 0 },
+      { anio: 2021, entidad: "MANUFACTURAS SERKA CONTINENTALES SA DE CV", valor: 0 }, { anio: 2022, entidad: "MANUFACTURAS SERKA CONTINENTALES SA DE CV", valor: 0 }, { anio: 2023, entidad: "MANUFACTURAS SERKA CONTINENTALES SA DE CV", valor: 0 }, { anio: 2024, entidad: "MANUFACTURAS SERKA CONTINENTALES SA DE CV", valor: 118 }, { anio: 2025, entidad: "MANUFACTURAS SERKA CONTINENTALES SA DE CV", valor: 111 },
+      { anio: 2021, entidad: "BECESA SA DE CV", valor: 0 }, { anio: 2022, entidad: "BECESA SA DE CV", valor: 0 }, { anio: 2023, entidad: "BECESA SA DE CV", valor: 0 }, { anio: 2024, entidad: "BECESA SA DE CV", valor: 153 }, { anio: 2025, entidad: "BECESA SA DE CV", valor: 0 },
+      { anio: 2021, entidad: "INDALJIM SA DE CV", valor: 77 }, { anio: 2022, entidad: "INDALJIM SA DE CV", valor: 67 }, { anio: 2023, entidad: "INDALJIM SA DE CV", valor: 0 }, { anio: 2024, entidad: "INDALJIM SA DE CV", valor: 0 }, { anio: 2025, entidad: "INDALJIM SA DE CV", valor: 0 },
+      { anio: 2021, entidad: "BELL-KROM SA DE CV", valor: 0 }, { anio: 2022, entidad: "BELL-KROM SA DE CV", valor: 0 }, { anio: 2023, entidad: "BELL-KROM SA DE CV", valor: 0 }, { anio: 2024, entidad: "BELL-KROM SA DE CV", valor: 0 }, { anio: 2025, entidad: "BELL-KROM SA DE CV", valor: 122 },
+      { anio: 2021, entidad: "LMR GRUP SA DE CV", valor: 0 }, { anio: 2022, entidad: "LMR GRUP SA DE CV", valor: 0 }, { anio: 2023, entidad: "LMR GRUP SA DE CV", valor: 110 }, { anio: 2024, entidad: "LMR GRUP SA DE CV", valor: 0 }, { anio: 2025, entidad: "LMR GRUP SA DE CV", valor: 0 },
+      { anio: 2021, entidad: "GRUPO INDUSTRIAL ASAD SA DE CV", valor: 0 }, { anio: 2022, entidad: "GRUPO INDUSTRIAL ASAD SA DE CV", valor: 0 }, { anio: 2023, entidad: "GRUPO INDUSTRIAL ASAD SA DE CV", valor: 0 }, { anio: 2024, entidad: "GRUPO INDUSTRIAL ASAD SA DE CV", valor: 107 }, { anio: 2025, entidad: "GRUPO INDUSTRIAL ASAD SA DE CV", valor: 0 },
+      { anio: 2021, entidad: "GRUPO ROMAY SA DE CV", valor: 0 }, { anio: 2022, entidad: "GRUPO ROMAY SA DE CV", valor: 0 }, { anio: 2023, entidad: "GRUPO ROMAY SA DE CV", valor: 0 }, { anio: 2024, entidad: "GRUPO ROMAY SA DE CV", valor: 0 }, { anio: 2025, entidad: "GRUPO ROMAY SA DE CV", valor: 100 },
+      { anio: 2021, entidad: "MAGNOCOM SA DE CV", valor: 0 }, { anio: 2022, entidad: "MAGNOCOM SA DE CV", valor: 0 }, { anio: 2023, entidad: "MAGNOCOM SA DE CV", valor: 0 }, { anio: 2024, entidad: "MAGNOCOM SA DE CV", valor: 100 }, { anio: 2025, entidad: "MAGNOCOM SA DE CV", valor: 0 },
+      { anio: 2021, entidad: "UNIFORMES EL TREN SA DE CV", valor: 0 }, { anio: 2022, entidad: "UNIFORMES EL TREN SA DE CV", valor: 0 }, { anio: 2023, entidad: "UNIFORMES EL TREN SA DE CV", valor: 0 }, { anio: 2024, entidad: "UNIFORMES EL TREN SA DE CV", valor: 100 }, { anio: 2025, entidad: "UNIFORMES EL TREN SA DE CV", valor: 0 },
+      { anio: 2021, entidad: "WAYAK MEDIA SA DE CV", valor: 0 }, { anio: 2022, entidad: "WAYAK MEDIA SA DE CV", valor: 0 }, { anio: 2023, entidad: "WAYAK MEDIA SA DE CV", valor: 0 }, { anio: 2024, entidad: "WAYAK MEDIA SA DE CV", valor: 0 }, { anio: 2025, entidad: "WAYAK MEDIA SA DE CV", valor: 100 },
+      { anio: 2021, entidad: "AM CENIT SA DE CV", valor: 0 }, { anio: 2022, entidad: "AM CENIT SA DE CV", valor: 0 }, { anio: 2023, entidad: "AM CENIT SA DE CV", valor: 99 }, { anio: 2024, entidad: "AM CENIT SA DE CV", valor: 0 }, { anio: 2025, entidad: "AM CENIT SA DE CV", valor: 0 },
+      { anio: 2021, entidad: "COMERCIALIZADORA MUNRRO SA DE CV", valor: 0 }, { anio: 2022, entidad: "COMERCIALIZADORA MUNRRO SA DE CV", valor: 0 }, { anio: 2023, entidad: "COMERCIALIZADORA MUNRRO SA DE CV", valor: 0 }, { anio: 2024, entidad: "COMERCIALIZADORA MUNRRO SA DE CV", valor: 0 }, { anio: 2025, entidad: "COMERCIALIZADORA MUNRRO SA DE CV", valor: 99 },
+      { anio: 2021, entidad: "IQ ORGULLO DE PERTENENCIA SA DE CV", valor: 0 }, { anio: 2022, entidad: "IQ ORGULLO DE PERTENENCIA SA DE CV", valor: 0 }, { anio: 2023, entidad: "IQ ORGULLO DE PERTENENCIA SA DE CV", valor: 76 }, { anio: 2024, entidad: "IQ ORGULLO DE PERTENENCIA SA DE CV", valor: 0 }, { anio: 2025, entidad: "IQ ORGULLO DE PERTENENCIA SA DE CV", valor: 0 },
+      { anio: 2021, entidad: "TOPO TACTICO SA DE CV", valor: 0 }, { anio: 2022, entidad: "TOPO TACTICO SA DE CV", valor: 0 }, { anio: 2023, entidad: "TOPO TACTICO SA DE CV", valor: 76 }, { anio: 2024, entidad: "TOPO TACTICO SA DE CV", valor: 0 }, { anio: 2025, entidad: "TOPO TACTICO SA DE CV", valor: 0 },
+      { anio: 2021, entidad: "TEXTILES LUNA Y SOL SA DE CV", valor: 0 }, { anio: 2022, entidad: "TEXTILES LUNA Y SOL SA DE CV", valor: 0 }, { anio: 2023, entidad: "TEXTILES LUNA Y SOL SA DE CV", valor: 69 }, { anio: 2024, entidad: "TEXTILES LUNA Y SOL SA DE CV", valor: 0 }, { anio: 2025, entidad: "TEXTILES LUNA Y SOL SA DE CV", valor: 0 },
+      { anio: 2021, entidad: "SERVICIOS Y ASESORIA DE PRODUCCION SA DE CV", valor: 46 }, { anio: 2022, entidad: "SERVICIOS Y ASESORIA DE PRODUCCION SA DE CV", valor: 8 }, { anio: 2023, entidad: "SERVICIOS Y ASESORIA DE PRODUCCION SA DE CV", valor: 0 }, { anio: 2024, entidad: "SERVICIOS Y ASESORIA DE PRODUCCION SA DE CV", valor: 0 }, { anio: 2025, entidad: "SERVICIOS Y ASESORIA DE PRODUCCION SA DE CV", valor: 0 },
+      { anio: 2021, entidad: "HILADOS Y TEJIDOS EL CARRETE", valor: 52 }, { anio: 2022, entidad: "HILADOS Y TEJIDOS EL CARRETE", valor: 0 }, { anio: 2023, entidad: "HILADOS Y TEJIDOS EL CARRETE", valor: 0 }, { anio: 2024, entidad: "HILADOS Y TEJIDOS EL CARRETE", valor: 0 }, { anio: 2025, entidad: "HILADOS Y TEJIDOS EL CARRETE", valor: 0 },
+      { anio: 2021, entidad: "ABC UNIFORMES SA DE CV", valor: 18 }, { anio: 2022, entidad: "ABC UNIFORMES SA DE CV", valor: 6 }, { anio: 2023, entidad: "ABC UNIFORMES SA DE CV", valor: 0 }, { anio: 2024, entidad: "ABC UNIFORMES SA DE CV", valor: 0 }, { anio: 2025, entidad: "ABC UNIFORMES SA DE CV", valor: 0 },
+      { anio: 2021, entidad: "MARIA EUGENIA MONROY ARCOS", valor: 0 }, { anio: 2022, entidad: "MARIA EUGENIA MONROY ARCOS", valor: 17 }, { anio: 2023, entidad: "MARIA EUGENIA MONROY ARCOS", valor: 0 }, { anio: 2024, entidad: "MARIA EUGENIA MONROY ARCOS", valor: 0 }, { anio: 2025, entidad: "MARIA EUGENIA MONROY ARCOS", valor: 0 },
+    ];
+
+    /* === INICIO: LÓGICA GENERAL Y PESTAÑA 1 === */
     function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
     const primary = cssVar('--primary-color') || '#1E5B4F';
     const palette = [primary, cssVar('--secondary-color')||'#A6802D', cssVar('--accent-color')||'#9C2348', '#3A82A8', '#6A3E7A', '#9A5A2A', '#5C8A3A', '#D07A4A'];
@@ -172,14 +261,12 @@
     const activities = Array.from(new Set(rawData.map(r=> r.actividad)));
     const nf = new Intl.NumberFormat('es-MX');
 
-    // --- INICIO: SOLUCIÓN ---
     // Formateador inteligente para abreviar números grandes en los ejes (ej. 1.2M, 500k)
     function axisLabelFormatter(v) {
       if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(1) + 'M';
       if (Math.abs(v) >= 1e3) return (v / 1e3).toFixed(0) + 'k';
       return v;
     }
-    // --- FIN: SOLUCIÓN ---
 
     // seriesMap
     const seriesMap = {};
@@ -425,15 +512,166 @@
     
     // Tab switching logic
     document.querySelector('.tab-buttons').addEventListener('click', (e) => {
-      if (e.target.matches('.tab-btn')) {
+      if (e.target.matches('.tab-btn') && !e.target.classList.contains('active')) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+        
+        const tabId = e.target.dataset.tab;
         e.target.classList.add('active');
-        document.getElementById(e.target.dataset.tab).classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+
+        // Forzar el redimensionamiento de los gráficos en la pestaña que se acaba de activar
+        // Esto soluciona el problema de renderizado en contenedores ocultos (display: none)
+        if (tabId === 'dependencias') {
+          [mainDep, donutDep, stackDep].forEach(chart => chart.resize());
+        }
       }
     });
 
-    function init(){ renderAll(); window.addEventListener('resize', ()=>{ main.resize(); stack.resize(); donut.resize(); }); }    init();
+    /* === INICIO: LÓGICA PESTAÑA 2 (DEPENDENCIAS) === */
+    const depMetricSelect = document.getElementById('dep-metric-select');
+    const otrosThresholdDepInput = document.getElementById('otrosThreshold-dep');
+
+    const mainDep = echarts.init(document.getElementById('chart-main-dep'), null, {renderer:'canvas'});
+    const stackDep = echarts.init(document.getElementById('chart-stack-dep'), null, {renderer:'canvas'});
+    const donutDep = echarts.init(document.getElementById('chart-donut-dep'), null, {renderer:'canvas'});
+
+    function getDataForDepTab() {
+      const selection = depMetricSelect.value;
+      const data = selection === 'instituciones' ? rawDataInstituciones : rawDataProveedores;
+      const years = Array.from(new Set(data.map(r => r.anio))).sort((a, b) => a - b);
+      const entities = Array.from(new Set(data.map(r => r.entidad)));
+      return { data, years, entities, selection };
+    }
+
+    function buildDepMainOptions({ data, years, entities, selection }) {
+      const series = entities.map((ent, idx) => {
+        const entityData = years.map(y => {
+          const record = data.find(r => r.anio === y && r.entidad === ent);
+          return record ? record.valor : 0;
+        });
+        return {
+          name: ent,
+          type: 'line',
+          smooth: true,
+          showSymbol: true,
+          symbolSize: 6,
+          areaStyle: { opacity: 0.12 },
+          lineStyle: { width: 3 },
+          itemStyle: { color: palette[idx % palette.length] },
+          data: entityData
+        };
+      });
+
+      return {
+        backgroundColor: 'transparent',
+        tooltip: { trigger: 'axis', axisPointer: { type: 'cross' }, formatter: p => `<strong style="font-size:13px;">${p[0].axisValue}</strong><br/>` + p.map(i => `<div style="display:flex;align-items:center;margin-top:4px;"><span style="display:inline-block;margin-right:6px;width:10px;height:10px;background:${i.color};border-radius:2px;"></span> ${i.seriesName.substring(0,40)}: <strong style="margin-left:auto;padding-left:12px;">${nf.format(i.data)}</strong></div>`).join('') },
+        legend: { type: 'scroll', top: 10, textStyle: { color: cssVar('--muted') } },
+        toolbox: { feature: { saveAsImage: { title: 'Guardar PNG' } }, right: 12 },
+        xAxis: { type: 'category', boundaryGap: false, data: years, axisLabel: { color: cssVar('--text') } },
+        yAxis: { type: 'value', axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } },
+        dataZoom: [{ type: 'inside', start: 0, end: 100 }, { start: 0, end: 100 }],
+        grid: { left: '6%', right: '4%', top: 70, bottom: 70 },
+        series: series
+      };
+    }
+
+    function buildDepDonutOptions({ data, years, entities, selection }, otrosThresholdPercent) {
+      const lastYear = Math.max(...years);
+      const rawSlices = entities.map((ent, i) => {
+        const record = data.find(r => r.anio === lastYear && r.entidad === ent);
+        return { name: ent, value: record ? record.valor : 0, itemStyle: { color: palette[i % palette.length] } };
+      });
+      const grouped = groupSmallSlices(rawSlices, otrosThresholdPercent);
+      return {
+        tooltip: { trigger: 'item', formatter: p => `<strong>${p.name}</strong><br/>Valor: <strong>${nf.format(p.value)}</strong> (${p.percent}%)` },
+        legend: { show: false },
+        series: [{ type: 'pie', radius: ['42%', '68%'], center: ['50%', '50%'], avoidLabelOverlap: true, label: { show: true, position: 'outside', formatter: '{b}\n{d}%', color: cssVar('--text') }, labelLine: { length: 10, length2: 8 }, data: grouped }]
+      };
+    }
+
+    function buildDepStackOptions({ data, years, entities, selection }) {
+        const series = entities.map((ent, idx) => ({
+            name: ent, type: 'bar', stack: 'total', itemStyle: { color: palette[idx % palette.length] },
+            data: years.map(y => (data.find(r => r.anio === y && r.entidad === ent) || {valor: 0}).valor)
+        }));
+        return { backgroundColor: 'transparent', tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } }, legend: { show: false }, grid: { left: '3%', right: '4%', bottom: '3%', top: 20, containLabel: true }, xAxis: { type: 'category', data: years, axisLabel: { color: cssVar('--text') } }, yAxis: { axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } }, series: series };
+    }
+
+    function renderDepKPIsAndSparks({ data, years, entities, selection }) {
+      const kpiContainer = document.getElementById('kpiContainer-dep');
+      const sparksContainer = document.getElementById('sparks-dep');
+      kpiContainer.innerHTML = '';
+      sparksContainer.innerHTML = '';
+      const lastYear = Math.max(...years);
+      const prevYear = years[years.length - 2] || lastYear;
+
+      const totalsByYear = years.map(y => data.filter(r => r.anio === y).reduce((sum, r) => sum + r.valor, 0));
+      const lastTotal = totalsByYear[totalsByYear.length - 1] || 0;
+      const prevTotal = totalsByYear[totalsByYear.length - 2] || 0;
+      const diff = prevTotal === 0 ? 0 : ((lastTotal - prevTotal) / prevTotal) * 100;
+
+      const kpiTotal = document.createElement('div');
+      kpiTotal.className = 'kpi';
+      kpiTotal.innerHTML = `<div style="font-size:13px;color:var(--muted)">Total ${selection === 'instituciones' ? 'Compras' : 'Contratos'} (${lastYear})</div><div style="font-size:18px;font-weight:700">${nf.format(lastTotal)}</div><div style="color:${diff>=0? '#8ef':'#f88'};font-size:12px;font-weight:bold;">${diff>=0? '▲ '+diff.toFixed(1)+'%': '▼ '+diff.toFixed(1)+'%'} <span style="font-weight:normal;color:var(--muted);">vs ${prevYear}</span></div>`;
+      kpiContainer.appendChild(kpiTotal);
+
+      const kpiCount = document.createElement('div');
+      kpiCount.className = 'kpi';
+      kpiCount.innerHTML = `<div style="font-size:13px;color:var(--muted)"># de ${selection}</div><div style="font-size:18px;font-weight:700">${entities.length}</div><div style="color:var(--muted);font-size:12px">En ${years.length} años</div>`;
+      kpiContainer.appendChild(kpiCount);
+
+      entities.forEach((ent, i) => {
+        const wrapper = document.createElement('div'); wrapper.className = 'sparkline';
+        const left = document.createElement('div'); left.style.flex = '1';
+        const title = document.createElement('div'); title.style.fontSize = '12px'; title.style.color = 'var(--muted)'; title.textContent = ent.substring(0, 25) + (ent.length > 25 ? '...' : ''); title.title = ent;
+        const lastValue = (data.find(r => r.anio === lastYear && r.entidad === ent) || {valor: 0}).valor;
+        const val = document.createElement('div'); val.style.fontWeight = '700'; val.style.fontSize = '13px'; val.textContent = nf.format(lastValue);
+        left.appendChild(title); left.appendChild(val);
+        const chartBox = document.createElement('div'); chartBox.style.width = '140px'; chartBox.style.height = '70px';
+        wrapper.appendChild(left); wrapper.appendChild(chartBox); sparksContainer.appendChild(wrapper);
+        const mini = echarts.init(chartBox, null, { renderer: 'canvas' });
+        const sparkData = years.map(y => (data.find(r => r.anio === y && r.entidad === ent) || {valor: 0}).valor);
+        mini.setOption({ grid: { left: 6, right: 6, top: 6, bottom: 6 }, xAxis: { show: false, type: 'category', data: years }, yAxis: { show: false, type: 'value' }, series: [{ type: 'line', data: sparkData, smooth: true, lineStyle: { width: 2, color: palette[i % palette.length] }, areaStyle: { opacity: 0.06 } }] });
+      });
+    }
+
+    function renderDepTab() {
+      const depData = getDataForDepTab();
+      const otrosThreshold = parseFloat(otrosThresholdDepInput.value) || 2;
+      const metricName = depData.selection === 'instituciones' ? 'Compras' : 'Contratos';
+
+      document.getElementById('title-main-dep').textContent = `Evolución de ${metricName}`;
+      document.getElementById('title-donut-dep').textContent = `Distribución de ${metricName} (${Math.max(...depData.years)})`;
+      document.getElementById('title-stack-dep').textContent = `Composición de ${metricName} por Año`;
+      document.getElementById('title-sparks-dep').textContent = `Tendencias Individuales (${metricName})`;
+
+      mainDep.setOption(buildDepMainOptions(depData), true);
+      donutDep.setOption(buildDepDonutOptions(depData, otrosThreshold), true);
+      stackDep.setOption(buildDepStackOptions(depData), true);
+      renderDepKPIsAndSparks(depData);
+    }
+
+    depMetricSelect.addEventListener('change', renderDepTab);
+    otrosThresholdDepInput.addEventListener('change', renderDepTab);
+    document.getElementById('btnExport-dep').addEventListener('click', () => {
+      const url = mainDep.getDataURL({ pixelRatio: 2, backgroundColor: '#fff' });
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `evolucion_${depMetricSelect.value}.png`;
+      a.click();
+    });
+
+    /* === INICIALIZACIÓN Y EVENTOS GLOBALES === */
+    function init(){
+      renderAll(); // Render Tab 1
+      renderDepTab(); // Render Tab 2
+      window.addEventListener('resize', ()=>{
+        main.resize(); stack.resize(); donut.resize();
+        mainDep.resize(); stackDep.resize(); donutDep.resize();
+      });
+    }
+    init();
   </script>
 </body>
 </html>
