@@ -134,6 +134,16 @@
             <option value="proveedores">Contratos por Proveedor</option>
           </select>
         </div>
+        <div class="select-wrap">
+          <select id="dep-year-select" title="Selecciona año">
+            <!-- Opciones de año se llenarán dinámicamente -->
+          </select>
+        </div>
+        <!-- INICIO: Controles añadidos -->
+        <label style="display:flex;align-items:center"><input type="checkbox" id="logScale-dep" /><span class="small" style="margin-left:6px;color:var(--muted)">Log</span></label>
+        <label style="display:flex;align-items:center"><input type="checkbox" id="normalize-dep" /><span class="small" style="margin-left:6px;color:var(--muted)">Normalizar</span></label>
+        <label style="display:flex;align-items:center"><input type="checkbox" id="showTotals-dep" /><span class="small" style="margin-left:6px;color:var(--muted)">Mostrar Totales</span></label>
+        <!-- FIN: Controles añadidos -->
         <button id="btnExport-dep" class="btn" title="Exportar PNG">📷</button>
       </div>
     </header>
@@ -530,7 +540,12 @@
 
     /* === INICIO: LÓGICA PESTAÑA 2 (DEPENDENCIAS) === */
     const depMetricSelect = document.getElementById('dep-metric-select');
+    const depYearSelect = document.getElementById('dep-year-select');
     const otrosThresholdDepInput = document.getElementById('otrosThreshold-dep');
+    // Referencias a los nuevos checkboxes
+    const logChkDep = document.getElementById('logScale-dep');
+    const normChkDep = document.getElementById('normalize-dep');
+    const showTotalsChkDep = document.getElementById('showTotals-dep');
 
     const mainDep = echarts.init(document.getElementById('chart-main-dep'), null, {renderer:'canvas'});
     const stackDep = echarts.init(document.getElementById('chart-stack-dep'), null, {renderer:'canvas'});
@@ -544,7 +559,62 @@
       return { data, years, entities, selection };
     }
 
-    function buildDepMainOptions({ data, years, entities, selection }) {
+    function buildDepMainOptions({ data, years, entities, selection }, { useLog = false, normalize = false, showTotals = false, selectedYear = 'todos' } = {}) {
+      // Lógica para vista de un solo año (gráfica de barras)
+      if (selectedYear !== 'todos') {
+        const year = parseInt(selectedYear);
+        const yearData = data
+          .filter(r => r.anio === year && r.valor > 0)
+          .sort((a, b) => b.valor - a.valor);
+
+        return {
+          backgroundColor: 'transparent',
+          tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: p => `<strong>${p[0].name}</strong><br/>Valor: <strong>${nf.format(p[0].value)}</strong>` },
+          grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+          xAxis: {
+            type: 'category',
+            data: yearData.map(d => d.entidad),
+            axisLabel: { color: cssVar('--text'), interval: 0, rotate: 30 }
+          },
+          yAxis: useLog 
+            ? { type: 'log', logBase: 10, axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } }
+            : { type: 'value', axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } },
+          dataZoom: [{ type: 'inside', start: 0, end: 100 }, { start: 0, end: 100 }],
+          series: [{
+            type: 'bar',
+            data: yearData.map((d, i) => ({ value: d.valor, itemStyle: { color: palette[i % palette.length] } })),
+          }]
+        };
+      }
+
+      // Lógica para mostrar totales (similar a la pestaña 1)
+      if (showTotals) {
+        let totals = years.map(y => data.filter(r => r.anio === y).reduce((sum, r) => sum + r.valor, 0));
+        if (normalize) {
+          const first = totals.find(v => v > 0);
+          totals = first ? totals.map(v => v ? (v / first) * 100 : null) : totals.map(_ => null);
+        } else if (useLog) {
+          totals = totals.map(v => v === 0 ? null : v);
+        }
+        return {
+          backgroundColor: 'transparent',
+          tooltip: { trigger: 'axis', formatter: p => `<strong>${p[0].axisValue}</strong><br/>Total: <strong>${nf.format(Math.round(p[0].data * 100) / 100)}</strong>` },
+          xAxis: { type: 'category', data: years, axisLabel: { color: cssVar('--text') } },
+          yAxis: useLog ? { type: 'log', logBase: 10, axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } } : { axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } },
+          series: [{
+            name: 'Total',
+            type: 'line',
+            smooth: true,
+            data: totals,
+            itemStyle: { color: primary },
+            areaStyle: { opacity: 0.14 },
+            lineStyle: { width: 3 }
+          }],
+          grid: { left: '6%', right: '4%', top: 70, bottom: 70 },
+          dataZoom: [{ type: 'inside', start: 0, end: 100 }, { start: 0, end: 100 }]
+        };
+      }
+
       const series = entities.map((ent, idx) => {
         const entityData = years.map(y => {
           const record = data.find(r => r.anio === y && r.entidad === ent);
@@ -552,15 +622,22 @@
         });
         return {
           name: ent,
+          raw: entityData, // Guardamos los datos originales para normalizar
           type: 'line',
           smooth: true,
           showSymbol: true,
           symbolSize: 6,
           areaStyle: { opacity: 0.12 },
           lineStyle: { width: 3 },
-          itemStyle: { color: palette[idx % palette.length] },
-          data: entityData
+          itemStyle: { color: palette[idx % palette.length] }
         };
+      }).map(s => {
+        if (normalize) {
+          const first = s.raw.find(v => v > 0);
+          return first ? { ...s, data: s.raw.map(v => v ? (v / first) * 100 : null) } : { ...s, data: s.raw.map(_ => null) };
+        }
+        // Aplicar log scale (convertir 0 a null)
+        return { ...s, data: useLog ? s.raw.map(v => v === 0 ? null : v) : s.raw };
       });
 
       return {
@@ -569,7 +646,7 @@
         legend: { type: 'scroll', top: 10, textStyle: { color: cssVar('--muted') } },
         toolbox: { feature: { saveAsImage: { title: 'Guardar PNG' } }, right: 12 },
         xAxis: { type: 'category', boundaryGap: false, data: years, axisLabel: { color: cssVar('--text') } },
-        yAxis: { type: 'value', axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } },
+        yAxis: useLog ? { type: 'log', logBase: 10, axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } } : { type: 'value', axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } },
         dataZoom: [{ type: 'inside', start: 0, end: 100 }, { start: 0, end: 100 }],
         grid: { left: '6%', right: '4%', top: 70, bottom: 70 },
         series: series
@@ -639,21 +716,35 @@
     function renderDepTab() {
       const depData = getDataForDepTab();
       const otrosThreshold = parseFloat(otrosThresholdDepInput.value) || 2;
+      const useLog = logChkDep.checked;
+      const normalize = normChkDep.checked;
+      const showTotals = showTotalsChkDep.checked;
+      const selectedYear = depYearSelect.value;
       const metricName = depData.selection === 'instituciones' ? 'Compras' : 'Contratos';
 
-      document.getElementById('title-main-dep').textContent = `Evolución de ${metricName}`;
+      // Actualizar títulos dinámicamente
+      if (selectedYear === 'todos') {
+        document.getElementById('title-main-dep').textContent = `Evolución de ${metricName}`;
+      } else {
+        document.getElementById('title-main-dep').textContent = `${metricName} en ${selectedYear}`;
+      }
       document.getElementById('title-donut-dep').textContent = `Distribución de ${metricName} (${Math.max(...depData.years)})`;
       document.getElementById('title-stack-dep').textContent = `Composición de ${metricName} por Año`;
       document.getElementById('title-sparks-dep').textContent = `Tendencias Individuales (${metricName})`;
-
-      mainDep.setOption(buildDepMainOptions(depData), true);
+      
+      // Pasamos las nuevas opciones a la función que construye la gráfica principal
+      mainDep.setOption(buildDepMainOptions(depData, { useLog, normalize, showTotals, selectedYear }), true);
       donutDep.setOption(buildDepDonutOptions(depData, otrosThreshold), true);
       stackDep.setOption(buildDepStackOptions(depData), true);
       renderDepKPIsAndSparks(depData);
     }
 
     depMetricSelect.addEventListener('change', renderDepTab);
+    depYearSelect.addEventListener('change', renderDepTab);
     otrosThresholdDepInput.addEventListener('change', renderDepTab);
+    logChkDep.addEventListener('change', renderDepTab);
+    normChkDep.addEventListener('change', renderDepTab);
+    showTotalsChkDep.addEventListener('change', renderDepTab);
     document.getElementById('btnExport-dep').addEventListener('click', () => {
       const url = mainDep.getDataURL({ pixelRatio: 2, backgroundColor: '#fff' });
       const a = document.createElement('a');
@@ -665,6 +756,17 @@
     /* === INICIALIZACIÓN Y EVENTOS GLOBALES === */
     function init(){
       renderAll(); // Render Tab 1
+
+      // Poblar el filtro de año para la pestaña de dependencias
+      const { years } = getDataForDepTab();
+      depYearSelect.innerHTML = '<option value="todos">Todos los años</option>';
+      years.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        depYearSelect.appendChild(option);
+      });
+
       renderDepTab(); // Render Tab 2
       window.addEventListener('resize', ()=>{
         main.resize(); stack.resize(); donut.resize();
