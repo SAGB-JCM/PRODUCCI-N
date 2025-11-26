@@ -41,6 +41,7 @@
       line-height: 1.6;
       color: #333;
       margin: 4px 0 16px 0;
+      text-align: justify;
     }
     strong {
       font-weight: 600;
@@ -60,6 +61,12 @@
       white-space: pre;
       transition: opacity 0.2s;
     }
+    .kpi-container { display: flex; gap: var(--gutter); margin-bottom: 12px; }
+    .kpi-card { flex: 1; background: #f8f9fa; border: 1px solid #eee; padding: 12px; border-radius: 8px; text-align: center; }
+    .kpi-value { font-size: 22px; font-weight: 700; color: var(--primary-color); margin: 4px 0; }
+    .kpi-label { font-size: 12px; color: var(--muted); }
+    .positive { color: #28a745; font-weight: 600; }
+    .negative { color: #dc3545; font-weight: 600; }
     footer{font-size:11px;color:var(--muted);margin-top:18px}
   </style>
 </head>
@@ -67,14 +74,34 @@
   <div class="page">
     <header>
       <div>
-        <h1>Infografía — Resultados del Análisis: Industria Textil y de la Confección (ITC) — Parte I</h1>
-        <div class="meta">Fuente: Anexo I (Nota Informativa y Resultados) — Datos oficiales INEGI / Secretaría de Economía. (Ver compendio de fuentes en el anexo).</div>
+        <h1>Resumen de Infografía - Industria Textil y de la Confección (ITC)</h1>
+        <p class="intro-text" style="margin-bottom:0;">
+          Este documento presenta un resumen visual de los principales indicadores y tendencias de la Industria Textil y de la Confección (ITC), elaborado como parte del informe presentado a la Dirección General correspondiente.
+        </p>
       </div>
       <div style="text-align:right">
         <div style="font-weight:600">Noviembre 2025</div>
-        <div class="meta">Diseño para exportación a PDF • No interactivo</div>
       </div>
     </header>
+
+    <section class="kpi-container">
+      <div class="kpi-card">
+        <div class="kpi-value"><span class="positive">+26.4%</span></div>
+        <div class="kpi-label">Crecimiento Promedio del PIB Sectorial (2018-2024)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">$480.2 M</div>
+        <div class="kpi-label">IED Acumulada (2019 - 2025 Q1)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">89.5%</div>
+        <div class="kpi-label">Concentración de Exportaciones hacia EE.UU.</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value"><span class="negative">-$4,313 M</span></div>
+        <div class="kpi-label">Déficit Comercial (Ene-Sep 2025)</div>
+      </div>
+    </section>
 
     <section class="card" style="margin-bottom:12px;">
       <p class="intro-text">
@@ -115,9 +142,9 @@
         <table class="stats" style="margin-top:8px">
           <thead><tr><th>Subsector (SCIAN)</th><th>2018</th><th>2019</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th><th>2025 Sep</th><th>% Δ 2018-2024</th></tr></thead>
           <tbody>
-            <tr><td>313</td><td>100</td><td>101.1</td><td>104.2</td><td>109.6</td><td>122.5</td><td>122.1</td><td>123.6</td><td>126.0</td><td>+23.6%</td></tr>
-            <tr><td>314</td><td>100</td><td>102.4</td><td>105.5</td><td>113.7</td><td>119.9</td><td>122.7</td><td>125.5</td><td>127.8</td><td>+25.5%</td></tr>
-            <tr><td>315</td><td>100</td><td>105.3</td><td>110.2</td><td>118.5</td><td>130.3</td><td>126.8</td><td>130.1</td><td>135.5</td><td>+30.1%</td></tr>
+            <tr><td>313</td><td>100</td><td>101.1</td><td>104.2</td><td>109.6</td><td>122.5</td><td>122.1</td><td>123.6</td><td>126.0</td><td class="positive">+23.6%</td></tr>
+            <tr><td>314</td><td>100</td><td>102.4</td><td>105.5</td><td>113.7</td><td>119.9</td><td>122.7</td><td>125.5</td><td>127.8</td><td class="positive">+25.5%</td></tr>
+            <tr><td>315</td><td>100</td><td>105.3</td><td>110.2</td><td>118.5</td><td>130.3</td><td>126.8</td><td>130.1</td><td>135.5</td><td class="positive">+30.1%</td></tr>
           </tbody>
         </table>
       </div>
@@ -131,10 +158,10 @@
         <table class="stats" style="margin-top:8px">
           <thead><tr><th>SCIAN</th><th>2019</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th><th>Mar 2025</th><th>Total (2019–2025Q1)</th><th>TCMA</th></tr></thead>
           <tbody>
-            <tr><td>313</td><td>2.4</td><td>1.0</td><td>37.1</td><td>24.6</td><td>10.2</td><td>4.8</td><td>-5.8</td><td>74.3</td><td>+15.3%</td></tr>
-            <tr><td>314</td><td>23.1</td><td>18.2</td><td>19.4</td><td>31.7</td><td>17.3</td><td>64.0</td><td>2.3</td><td>176.0</td><td>+22.6%</td></tr>
-            <tr><td>315</td><td>76.3</td><td>23.2</td><td>8.0</td><td>62.5</td><td>-4.5</td><td>51.0</td><td>13.3</td><td>229.8</td><td>-7.7%</td></tr>
-            <tr><td><strong>Total ITC</strong></td><td>101.8</td><td>42.4</td><td>64.5</td><td>118.8</td><td>23.0</td><td>119.9</td><td>9.8</td><td>480.2</td><td>+3.3%</td></tr>
+            <tr><td>313</td><td>2.4</td><td>1.0</td><td>37.1</td><td>24.6</td><td>10.2</td><td>4.8</td><td>-5.8</td><td>74.3</td><td class="positive">+15.3%</td></tr>
+            <tr><td>314</td><td>23.1</td><td>18.2</td><td>19.4</td><td>31.7</td><td>17.3</td><td>64.0</td><td>2.3</td><td>176.0</td><td class="positive">+22.6%</td></tr>
+            <tr><td>315</td><td>76.3</td><td>23.2</td><td>8.0</td><td>62.5</td><td>-4.5</td><td>51.0</td><td>13.3</td><td>229.8</td><td class="negative">-7.7%</td></tr>
+            <tr><td><strong>Total ITC</strong></td><td>101.8</td><td>42.4</td><td>64.5</td><td>118.8</td><td>23.0</td><td>119.9</td><td>9.8</td><td>480.2</td><td class="positive">+3.3%</td></tr>
           </tbody>
         </table>
       </div>
