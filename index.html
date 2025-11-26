@@ -448,7 +448,7 @@
       if(!c) return;
       var w = Math.max(100, c.clientWidth) || 460;
       var h = c.clientHeight || 220;
-      var p = { top: 20, right: 20, bottom: 30, left: 40 };
+      var p = { top: 20, right: 20, bottom: 40, left: 40 }; // Aumentamos el padding inferior
       var svg = createSVG(w,h);
 
       var allVals = [];
@@ -547,7 +547,7 @@
       for(var i=0;i<data.years.length;i++){
         var x = p.left + i * xStep;
         var t = document.createElementNS('http://www.w3.org/2000/svg','text');
-        t.setAttribute('x',x);
+        t.setAttribute('x', x);
         t.setAttribute('y', h - p.bottom + 15);
         t.setAttribute('font-size',11);
         t.setAttribute('text-anchor','middle');
