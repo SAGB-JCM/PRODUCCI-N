@@ -3,777 +3,830 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dashboard — Evolución Producción Textil (v4.1 — Fix Totales + Donut)</title>
+  <title>Infografía - Anexo I (Parte I) — ITC</title>
   <style>
-
-    /* body { zoom: 75%; } /* Causa probable de problemas de interacción con gráficas. Considera eliminar o reemplazar con transform: scale() o ajustar tamaños base. */
-    .dashboard-wrapper {
-      transform: scale(0.75);
-      transform-origin: top left;
-      width: 133.33%; /* 100% / 0.75 */
-    }
-    
     :root{
-      --primary-color:#1E5B4F; --secondary-color:#A6802D; --accent-color:#9C2348; /* Colores principales se mantienen */
-      --bg:#f8f9fa; --card: #ffffff; --muted:#6c757d; --text:#212529; /* Paleta de colores clara */
+      --primary-color: #1E5B4F;
+      --secondary-color: #A6802D;
+      --accent-color: #9C2348;
+      --bg:#ffffff;
+      --muted:#666;
+      --page-width:1000px; /* good for pdf export */
+      --gutter:24px;
     }
+    body{font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:var(--bg); color:#111; margin:0; padding:24px;}
+    .page{width:var(--page-width); margin:0 auto; box-sizing:border-box}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    h1{font-size:20px;color:var(--primary-color);margin:0}
+    h2{font-size:16px;color:var(--secondary-color);margin:8px 0}
+    h3{font-size:14px;color:var(--accent-color);margin:8px 0}
+    .meta{font-size:12px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--gutter);}
+    .card{background:#fff;border:1px solid #eee;padding:12px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.03)}
+    .chart{height:220px}
+    .small{height:140px}
+    .legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:12px}
+    .legend span{display:inline-flex;align-items:center;gap:6px}
+    .swatch{width:12px;height:12px;border-radius:3px;display:inline-block}
+    table.stats{width:100%;border-collapse:collapse;font-size:12px}
+    table.stats th, table.stats td{padding:6px;border:1px solid #eee;text-align:right}
+    table.stats th{background: #e8f0ef; color: var(--primary-color); text-align:left; font-weight: 600;}
+    .chart-container { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .flex-container { display: flex; align-items: center; gap: var(--gutter); flex-wrap: wrap; }
+    .flex-container > div { flex: 1; min-width: 300px; }
 
-    *{box-sizing:border-box}
-    body{ margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial; background:linear-gradient(180deg, #f4f7f9, #e9edf2); color:var(--text); -webkit-font-smoothing:antialiased;}
-    .container{ max-width:1320px; margin:16px auto; padding:16px; display:grid; gap:16px; grid-template-columns:1fr 360px; }
-    header{ grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; gap:12px }
-    h1{ margin:0; font-size:20px } p.lead{ margin:0; color:var(--muted); font-size:13px }
-    .controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
-    select, button, input[type=number]{ background: linear-gradient(180deg, rgba(255,255,255,0.017), rgba(255,255,255,0.01)); color:var(--text); border:1px solid rgba(255,255,255,0.06); padding:8px 10px; border-radius:10px; cursor:pointer; font-size:13px; outline:none; appearance:none; }
-    .select-wrap{ position:relative; display:inline-block } .select-wrap::after{ content:"▾"; position:absolute; right:10px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--muted); font-size:12px; }
-    .btn-primary{ background:linear-gradient(90deg,var(--primary-color), rgba(30,91,79,0.9)); color:#fff; border:none; box-shadow:0 8px 24px rgba(30,91,79,0.12) }
-    .btn{ background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--text); padding:8px 10px; border-radius:10px; cursor:pointer }
-    label.small{ font-size:13px; color:var(--muted); margin-left:6px; user-select:none; }
-    .card{ background: var(--card); padding:16px; border-radius:12px; border:1px solid #e9ecef; box-shadow:0 4px 12px rgba(39, 39, 39, 0.04); }
-    .charts{ display:grid; gap:12px; grid-template-rows:auto 260px }
-    #chart-main{ height:520px } #chart-stack{ height:220px } #chart-donut{ height:320px }
-    .sidebar{ display:flex; flex-direction:column; gap:12px }
-    .kpis{ display:grid; gap:8px; grid-template-columns:1fr 1fr } .kpi{ padding:10px; border-radius:10px; background:rgba(255,255,255,0.01) }
-    .mini-sparklines{ display:grid; gap:8px; margin-top:8px } .sparkline{ height:70px; padding:6px; border-radius:8px; background:rgba(255,255,255,0.01); display:flex; align-items:center; justify-content:space-between }
-    .legend{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; max-height:60px; overflow:auto; padding-right:6px; }
-    footer.small{ grid-column:1/-1; text-align:center; color:var(--muted); font-size:12px; margin-top:16px; padding-top: 16px; border-top: 1px solid #e9ecef; }
-    @media (max-width:1100px){ .container{ grid-template-columns:1fr; padding:10px } #chart-main{ height:380px } }
-
-    /* Tab Styles */
-    .tabs { padding: 0 16px; max-width: 1320px; margin: 16px auto 0; }
-    .tab-buttons { border-bottom: 1px solid #dee2e6; }
-    .tab-btn { background: transparent; border: none; padding: 10px 16px; cursor: pointer; font-size: 15px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
-    .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 600; }
-    .tab-pane { display: none; }
-    .tab-pane.active { display: block; }
+    @media print{body{padding:8px} .page{width:100%;} .chart, .small{height:180px}}
+    .intro-text, .chart-context {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #333;
+      margin: 4px 0 16px 0;
+    }
+    strong {
+      font-weight: 600;
+      color: var(--secondary-color);
+    }
+    .note{font-size:12px;color:var(--muted);margin-top:8px}
+    /* --- Estilos para Tooltip Interactivo --- */
+    #chart-tooltip {
+      position: absolute;
+      display: none;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      pointer-events: none; /* Evita que el tooltip interfiera con el mouse */
+      white-space: pre;
+      transition: opacity 0.2s;
+    }
+    footer{font-size:11px;color:var(--muted);margin-top:18px}
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 </head>
 <body>
-<div class="dashboard-wrapper">
-  <div class="tabs">
-    <div class="tab-buttons">
-      <button class="tab-btn active" data-tab="produccion">Producción Industria Textil</button>
-      <button class="tab-btn" data-tab="dependencias">Dependencias - Uniformes</button>
-    </div>
-  </div>
-
-<div id="produccion" class="tab-pane active">
-  <div class="container">
+  <div class="page">
     <header>
       <div>
-        <h1>📊 Dashboard de la Industria Textil</h1>
-        <p class="lead">Análisis evolutivo de la producción y ventas del sector textil, segmentado por clave de actividad económica (SCIAN). Las métricas de valor se presentan en miles de pesos y las de cantidad en las unidades correspondientes a cada actividad.</p>
+        <h1>Infografía — Resultados del Análisis: Industria Textil y de la Confección (ITC) — Parte I</h1>
+        <div class="meta">Fuente: Anexo I (Nota Informativa y Resultados) — Datos oficiales INEGI / Secretaría de Economía. (Ver compendio de fuentes en el anexo).</div>
       </div>
-
-      <div class="controls">
-        <div class="select-wrap"><select id="metric" title="Selecciona métrica">
-          <option value="valor_produccion">Valor producción (miles)</option>
-          <option value="cantidad_produccion">Cantidad producción</option>
-          <option value="valor_ventas">Valor ventas (miles)</option>
-          <option value="cantidad_ventas">Cantidad ventas</option>
-        </select></div>
-
-        <label style="display:flex;align-items:center"><input type="checkbox" id="logScale" /><span class="small" style="margin-left:6px;color:var(--muted)">Log</span></label>
-        <label style="display:flex;align-items:center"><input type="checkbox" id="normalize" /><span class="small" style="margin-left:6px;color:var(--muted)">Normalizar</span></label>
-        <label style="display:flex;align-items:center"><input type="checkbox" id="showTotals" /><span class="small" style="margin-left:6px;color:var(--muted)">Mostrar Totales</span></label>
-
-        <div style="display:flex;gap:8px;align-items:center">
-          <button id="btnPlay" class="btn-primary">▶ Play</button>
-          <button id="btnExport" class="btn" title="Exportar PNG">📷</button>
-          <button id="btnCSV" class="btn">⬇ CSV</button>
-        </div>
+      <div style="text-align:right">
+        <div style="font-weight:600">Noviembre 2025</div>
+        <div class="meta">Diseño para exportación a PDF • No interactivo</div>
       </div>
     </header>
 
-    <section class="charts" style="grid-template-rows: auto auto 260px;">
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong id="title-main">Evolución de la Métrica Principal</strong>
-          <div class="legend" id="legendContainer"></div>
-        </div>
-        <div id="chart-main"></div>
-      </div>
+    <section class="card" style="margin-bottom:12px;">
+      <p class="intro-text">
+        El presente informe técnico se genera para dotar a la Dirección General de Prevención de la Corrupción y Mejora Continua de información actualizada, precisa y contextualizada sobre la ITC, con el objetivo de definir estrategias que impulsen su desarrollo sostenido. El foco del estudio es la Industria Textil y de la Confección (ITC) en México (SCIAN 313, 314 y 315), cubriendo la producción nacional, el desempeño macroeconómico (PIB, IED) y la dinámica del comercio exterior para el periodo de 2019 hasta el tercer trimestre de 2025 (2025 Q3). Es importante notar que el sector está bajo la intervención estratégica del Gobierno Federal denominada "Protección Activa".
+      </p>
+    </section>
 
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-          <strong>Distribución por Actividad (Último Año)</strong>
-          <div style="display:flex;gap:8px;align-items:center">
-            <label style="font-size:12px;color:var(--muted)">Umbral "Otros" %:</label>
-            <input id="otrosThreshold" type="number" min="0" max="10" step="0.1" value="1" style="width:72px" />
+
+    <section class="card">
+      <h2>Resumen ejecutivo (visual)</h2>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px">
+          <h3>Balance Comercial — Coyuntura 2025</h3>
+          <div class="chart" id="chart-balance"></div>
+          <div class="legend">
+            <span><i class="swatch" style="background:var(--primary-color)"></i>Importaciones</span>
+            <span><i class="swatch" style="background:var(--secondary-color)"></i>Exportaciones</span>
+            <span><i class="swatch" style="background:var(--accent-color)"></i>Déficit</span>
           </div>
+          <div class="note">Cierre parcial 2024 vs Acumulado Ene-Sep 2025 — datos en MM USD.</div>
         </div>
-        <div id="chart-donut"></div>
-        <small style="color:var(--muted)">"Otros" agrupa las actividades con una participación menor al umbral. El tooltip muestra el detalle.</small>
+        <div style="flex:1;min-width:260px">
+          <h3>IED acumulada (2019 - 2025 Q1)</h3>
+          <div class="small" id="chart-ied"></div>
+          <div class="note">IED Total sector ITC: 480.2 M USD. Tendencia positiva en subsectores 313 y 314; negativa en 315.</div>
+        </div>
       </div>
     </section>
 
-    <aside class="sidebar">
-      <div class="card"><strong>Stacked (por año)</strong><div id="chart-stack"></div></div>
-
-      <div class="card"><strong>KPI / Totales</strong><div class="kpis" id="kpiContainer" style="margin-top:8px;"></div><small style="color:var(--muted);display:block;margin-top:8px;">Activa "Mostrar Totales" para la serie agregada.</small></div> 
-      <div class="card"><strong>Tendencias Individuales por Actividad</strong><div class="mini-sparklines" id="sparks"></div></div>
-    </aside>
-
-    <footer class="small">Dashboard interactivo para el análisis de la producción textil.</footer>
-  </div>
-</div>
-
-<div id="dependencias" class="tab-pane">
-  <!-- INICIO: CONTENIDO PESTAÑA DEPENDENCIAS -->
-  <div class="container">
-    <header>
-      <div>
-        <h1>📈 Dashboard de Compras y Contratos</h1>
-        <p class="lead">Análisis de compras por Institución y contratos por Proveedor en los últimos años.</p>
-      </div>
-      <div class="controls">
-        <div class="select-wrap">
-          <select id="dep-metric-select" title="Selecciona vista">
-            <option value="instituciones">Compras por Institución</option>
-            <option value="proveedores">Contratos por Proveedor</option>
-          </select>
-        </div>
-        <div class="select-wrap">
-          <select id="dep-year-select" title="Selecciona año">
-            <!-- Opciones de año se llenarán dinámicamente -->
-          </select>
-        </div>
-        <!-- INICIO: Controles añadidos -->
-        <label style="display:flex;align-items:center"><input type="checkbox" id="logScale-dep" /><span class="small" style="margin-left:6px;color:var(--muted)">Log</span></label>
-        <label style="display:flex;align-items:center"><input type="checkbox" id="normalize-dep" /><span class="small" style="margin-left:6px;color:var(--muted)">Normalizar</span></label>
-        <label style="display:flex;align-items:center"><input type="checkbox" id="showTotals-dep" /><span class="small" style="margin-left:6px;color:var(--muted)">Mostrar Totales</span></label>
-        <!-- FIN: Controles añadidos -->
-        <button id="btnExport-dep" class="btn" title="Exportar PNG">📷</button>
-      </div>
-    </header>
-
-    <section class="charts" style="grid-template-rows: auto auto 260px;">
+    <section class="grid" style="margin-top:12px">
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong id="title-main-dep">Evolución de Compras/Contratos</strong>
-        </div>
-        <div id="chart-main-dep" style="height:520px"></div>
+        <h2>PIB — Índice 2018=100 (2018–Sep 2025)</h2>
+        <p class="chart-context">
+          El Producto Interno Bruto (PIB) sectorial (2020 Q1 - 2025 Q3) muestra una fuerte volatilidad post-pandemia. Tras un declive en 2020, la recuperación fue notable en 2021 y 2022. Sin embargo, en 2023 y el inicio de 2024 se observa una desaceleración, que se proyecta se estabilice hacia el Q3 de 2025 en un nivel similar al promedio histórico.
+        </p>
+        <div class="chart" id="chart-pib"></div>
+        <div class="note">Subsectores: 313, 314, 315. 315 presenta el mayor crecimiento acumulado (+30.1% respecto 2018).</div>
+        <table class="stats" style="margin-top:8px">
+          <thead><tr><th>Subsector (SCIAN)</th><th>2018</th><th>2019</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th><th>2025 Sep</th><th>% Δ 2018-2024</th></tr></thead>
+          <tbody>
+            <tr><td>313</td><td>100</td><td>101.1</td><td>104.2</td><td>109.6</td><td>122.5</td><td>122.1</td><td>123.6</td><td>126.0</td><td>+23.6%</td></tr>
+            <tr><td>314</td><td>100</td><td>102.4</td><td>105.5</td><td>113.7</td><td>119.9</td><td>122.7</td><td>125.5</td><td>127.8</td><td>+25.5%</td></tr>
+            <tr><td>315</td><td>100</td><td>105.3</td><td>110.2</td><td>118.5</td><td>130.3</td><td>126.8</td><td>130.1</td><td>135.5</td><td>+30.1%</td></tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-          <strong id="title-donut-dep">Distribución (Último Año)</strong>
-          <div style="display:flex;gap:8px;align-items:center">
-            <label style="font-size:12px;color:var(--muted)">Umbral "Otros" %:</label>
-            <input id="otrosThreshold-dep" type="number" min="0" max="20" step="0.5" value="2" style="width:72px" />
-          </div>
-        </div>
-        <div id="chart-donut-dep" style="height:320px"></div>
-        <small style="color:var(--muted)">"Otros" agrupa entidades con participación menor al umbral.</small>
+        <h2>IED por subsector — Serie (2019–2025 Q1)</h2>
+        <p class="chart-context">
+          La Inversión Extranjera Directa (IED) consolidada para el periodo 2020-2025 Q3 totalizó <strong>480.2 Millones de USD</strong>. El subsector SCIAN 315 (Fabricación de prendas de vestir) es el que históricamente atrae la mayor IED, con <strong>229.8 Millones de USD</strong>, reflejando la solidez de la cadena de valor final. En contraste, los subsectores 313 y 314 presentan niveles más moderados, indicando una posible área de oportunidad para atraer inversión a la producción de insumos intermedios.
+        </p>
+        <div class="chart" id="chart-ied-series"></div>
+        <table class="stats" style="margin-top:8px">
+          <thead><tr><th>SCIAN</th><th>2019</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th><th>Mar 2025</th><th>Total (2019–2025Q1)</th><th>TCMA</th></tr></thead>
+          <tbody>
+            <tr><td>313</td><td>2.4</td><td>1.0</td><td>37.1</td><td>24.6</td><td>10.2</td><td>4.8</td><td>-5.8</td><td>74.3</td><td>+15.3%</td></tr>
+            <tr><td>314</td><td>23.1</td><td>18.2</td><td>19.4</td><td>31.7</td><td>17.3</td><td>64.0</td><td>2.3</td><td>176.0</td><td>+22.6%</td></tr>
+            <tr><td>315</td><td>76.3</td><td>23.2</td><td>8.0</td><td>62.5</td><td>-4.5</td><td>51.0</td><td>13.3</td><td>229.8</td><td>-7.7%</td></tr>
+            <tr><td><strong>Total ITC</strong></td><td>101.8</td><td>42.4</td><td>64.5</td><td>118.8</td><td>23.0</td><td>119.9</td><td>9.8</td><td>480.2</td><td>+3.3%</td></tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
-    <aside class="sidebar">
-      <div class="card"><strong id="title-stack-dep">Composición por Año</strong><div id="chart-stack-dep" style="height:220px"></div></div>
-      <div class="card"><strong>KPI / Totales</strong><div class="kpis" id="kpiContainer-dep" style="margin-top:8px;"></div></div>
-      <div class="card"><strong id="title-sparks-dep">Tendencias Individuales</strong><div class="mini-sparklines" id="sparks-dep"></div></div>
-    </aside>
+    <section style="margin-top:12px" class="card">
+        <h2>Producción y Ventas (Acumulado 2018 - 2025 Q3)</h2>
+        <p class="chart-context">
+          La Producción Nacional (2020 Q1 - 2025 Q3) se enfoca en el SCIAN 313 (Fabricación de insumos textiles y acabado de textiles). Este gráfico ilustra que, a pesar de los esfuerzos, la producción interna de insumos (hilos, telas, etc.) aún no satisface la demanda total de los subsectores 314 y 315. Se proyecta que las estrategias de <strong>"Protección Activa"</strong> busquen incrementar esta producción para reducir la dependencia de la cadena de suministro internacional y fortalecer la integración vertical.
+        </p>
 
-    <footer class="small">Dashboard interactivo para el análisis de compras y contrataciones.</footer>
+        <div class="grid">
+          <div class="card">
+            <h3>Valor en miles de pesos</h3>
+            <div class="chart" id="chart-prod-val"></div>
+            <div class="legend">
+              <span><i class="swatch" style="background:var(--primary-color)"></i>Producción</span>
+              <span><i class="swatch" style="background:var(--secondary-color)"></i>Ventas netas</span>
+            </div>
+            <table class="stats" style="margin-top:8px">
+              <thead><tr><th>Subsector</th><th>Producción</th><th>Ventas netas</th><th>% Venta/Prod</th></tr></thead>
+              <tbody>
+                <tr><td>313</td><td>467,012,975</td><td>457,989,155</td><td>98.07%</td></tr>
+                <tr><td>314</td><td>186,428,225</td><td>185,327,239</td><td>99.41%</td></tr>
+                <tr><td>315</td><td>545,603,398</td><td>542,193,414</td><td>99.38%</td></tr>
+                <tr><td><strong>Total</strong></td><td>1,199,044,598</td><td>1,185,559,808</td><td>98.87%</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card">
+            <h3>Unidades físicas (piezas)</h3>
+            <div class="chart" id="chart-prod-qty"></div>
+            <div class="legend">
+              <span><i class="swatch" style="background:var(--primary-color)"></i>Producción (piezas)</span>
+              <span><i class="swatch" style="background:var(--secondary-color)"></i>Ventas netas (piezas)</span>
+            </div>
+            <table class="stats" style="margin-top:8px">
+              <thead><tr><th>Subsector</th><th>Producción (piezas)</th><th>Ventas netas (piezas)</th><th>% Cantidades</th></tr></thead>
+              <tbody>
+                <tr><td>313</td><td>4,492,568</td><td>4,400,535</td><td>97.95%</td></tr>
+                <tr><td>314</td><td>303,663,003</td><td>296,722,051</td><td>97.71%</td></tr>
+                <tr><td>315</td><td>688,381,603</td><td>670,934,639</td><td>97.47%</td></tr>
+                <tr><td><strong>Total</strong></td><td>996,537,174</td><td>972,057,225</td><td>97.54%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+    </section>
+
+    <section style="margin-top:12px" class="card">
+      <h2>Comercio exterior — Déficit y estructura por subsector</h2>
+      <p class="chart-context">
+        El análisis de la Balanza Comercial (Millones de USD) para el periodo revela un persistente déficit comercial en los tres subsectores de la ITC, lo que subraya la alta dependencia del sector de insumos importados. El subsector SCIAN 313 (Insumos textiles) presenta el mayor déficit, mientras que SCIAN 315 (Prendas de vestir) registra un menor déficit relativo, siendo el más competitivo en términos de exportaciones.
+      </p>
+      <div class="grid">
+        <div class="card">
+          <h3>Balanza Comercial (MM USD)</h3>
+          <div class="chart" id="chart-trade"></div>
+          <table class="stats" style="margin-top:8px">
+            <thead><tr><th>Periodo</th><th>Importaciones</th><th>Exportaciones</th><th>Déficit</th></tr></thead>
+            <tbody>
+              <tr><td>Cierre parcial 2024 (Ene-Nov)</td><td>12,394</td><td>8,114</td><td>–4,280</td></tr>
+              <tr><td>Coyuntura 2025 (Ene-Sep)</td><td>9,874</td><td>5,561</td><td>–4,313</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3>Balanza por subsector (2024) — Miles USD</h3>
+          <div class="small" id="chart-balance-sub"></div>
+          <table class="stats" style="margin-top:8px">
+            <div class="legend">
+              <span><i class="swatch" style="background:var(--primary-color)"></i>Importaciones</span>
+              <span><i class="swatch" style="background:var(--secondary-color)"></i>Exportaciones</span>
+            </div>
+            <br>
+            <thead><tr><th>Subsector</th><th>Importaciones</th><th>Exportaciones</th><th>Balanza</th></tr></thead>
+            <tbody>
+              <tr><td>313</td><td>1,180,515</td><td>810,395</td><td>–370,120</td></tr>
+              <tr><td>314</td><td>1,542,439</td><td>725,032</td><td>–817,407</td></tr>
+              <tr><td>315</td><td>1,960,358</td><td>2,726,073</td><td>765,715</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="flex-container" style="margin-top:12px">
+        <div>
+          <h3>Origen de las importaciones (Acumulado 2020–2024)</h3>
+          <p class="chart-context">
+            La tendencia de las importaciones totales (2020 Q1 - 2025 Q3) refleja la dependencia estructural de la ITC hacia insumos externos. Las importaciones superan consistentemente a las exportaciones en volumen, lo que se traduce en el déficit comercial observado. El <strong>subsector SCIAN 313 (Insumos textiles)</strong> es el que más contribuye a este volumen de importaciones, evidenciando un cuello de botella en la producción nacional de materia prima e intermedios.
+          </p>
+          <div class="chart-container">
+            <div class="chart" id="chart-origin" style="height:250px"></div>
+            <div class="legend" id="legend-origin"></div>
+            <table class="stats" style="margin-top:8px;">
+              <thead><tr><th>País</th><th>Monto (MM USD)</th><th>Participación</th></tr></thead>
+              <tbody>
+                <tr><td>China</td><td>18,500</td><td>38.5%</td></tr>
+                <tr><td>Estados Unidos</td><td>12,100</td><td>25.2%</td></tr>
+                <tr><td>Vietnam</td><td>3,850</td><td>8.0%</td></tr>
+                <tr><td>India</td><td>1,550</td><td>3.2%</td></tr>
+                <tr><td>Bangladés</td><td>1,350</td><td>2.8%</td></tr>
+                <tr><td>Otros</td><td>10,700</td><td>22.3%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <h3>Destinos de exportación (Acumulado 2020–2024)</h3>
+          <p class="chart-context">
+            Las exportaciones totales de la ITC (2020 Q1 - 2025 Q3) muestran una tendencia de crecimiento notable, especialmente después de 2021. Este desempeño se debe en gran medida a la robusta actividad del <strong>subsector SCIAN 315 (Fabricación de prendas de vestir)</strong>, que funciona como un motor clave de las exportaciones, representando la etapa final y de mayor valor añadido en la cadena productiva. La demanda sostenida del mercado estadounidense ha sido el principal factor impulsor.
+          </p>
+          <div class="chart-container">
+            <div class="chart" id="chart-dest" style="height:250px"></div>
+            <div class="legend" id="legend-dest"></div>
+            <table class="stats" style="margin-top:8px;">
+              <thead><tr><th>País</th><th>Monto (MM USD)</th><th>Participación</th></tr></thead>
+              <tbody>
+                <tr><td>Estados Unidos</td><td>10,900</td><td>89.5%</td></tr>
+                <tr><td>Canadá</td><td>450</td><td>3.7%</td></tr>
+                <tr><td>Guatemala</td><td>220</td><td>1.8%</td></tr>
+                <tr><td>Colombia</td><td>110</td><td>0.9%</td></tr>
+                <tr><td>Honduras</td><td>80</td><td>0.7%</td></tr>
+                <tr><td>Otros</td><td>410</td><td>3.4%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="margin-top:12px" class="card">
+      <h2>Empresas exportadoras / importadoras (2020–2024)</h2>
+      <p class="chart-context">
+        El análisis del número de empresas participantes en el comercio exterior (2020-2024) revela una tendencia a la consolidación. Se observa una disminución gradual en la cantidad de firmas tanto exportadoras como importadoras, especialmente en el subsector <strong>SCIAN 315 (Prendas de vestir)</strong>. Esto sugiere que, si bien el volumen de comercio puede crecer, este se concentra en un número menor de actores, posiblemente de mayor tamaño y eficiencia.
+      </p>
+      <div class="grid">
+        <div class="card">
+          <h3>Empresas Exportadoras (E)</h3>
+          <div class="chart" id="chart-firms-e" style="height:280px"></div>
+          <div class="legend">
+            <span><i class="swatch" style="background:#1E5B4F"></i>313</span>
+            <span><i class="swatch" style="background:#A6802D"></i>314</span>
+            <span><i class="swatch" style="background:#9C2348"></i>315</span>
+          </div>
+          <table class="stats" style="margin-top:8px;overflow:auto">
+            <thead><tr><th>SCIAN</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th></tr></thead>
+            <tbody>
+              <tr><td>313</td><td>121</td><td>118</td><td>108</td><td>103</td><td>101</td></tr>
+              <tr><td>314</td><td>86</td><td>90</td><td>87</td><td>85</td><td>80</td></tr>
+              <tr><td>315</td><td>286</td><td>275</td><td>266</td><td>264</td><td>228</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3>Empresas Importadoras (I)</h3>
+          <div class="chart" id="chart-firms-i" style="height:280px"></div>
+          <div class="legend">
+            <span><i class="swatch" style="background:#1E5B4F"></i>313</span>
+            <span><i class="swatch" style="background:#A6802D"></i>314</span>
+            <span><i class="swatch" style="background:#9C2348"></i>315</span>
+          </div>
+          <table class="stats" style="margin-top:8px;overflow:auto">
+            <thead><tr><th>SCIAN</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th></tr></thead>
+            <tbody>
+              <tr><td>313</td><td>153</td><td>153</td><td>149</td><td>142</td><td>142</td></tr>
+              <tr><td>314</td><td>104</td><td>109</td><td>107</td><td>113</td><td>105</td></tr>
+              <tr><td>315</td><td>303</td><td>302</td><td>292</td><td>275</td><td>251</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div>Documento generado para el Anexo I — Nota Informativa y Resultados del Análisis de la ITC.</div>
+    </footer>
   </div>
-  <!-- FIN: CONTENIDO PESTAÑA DEPENDENCIAS -->
-</div>
-</div>
+
+  <!-- Contenedor para el tooltip -->
+  <div id="chart-tooltip"></div>
 
   <script>
-    /* === DATOS PESTAÑA 1: PRODUCCIÓN === */
-    const rawData = [
-      // (usa exactamente tus filas; acorté aquí por brevedad en el snippet, pega tu tabla completa)
-      {anio:2018, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:199648, valor_produccion:24954414, cantidad_ventas:196167, valor_ventas:24794544},
-      {anio:2018, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:30133, valor_produccion:5631546, cantidad_ventas:28814, valor_ventas:5291519},
-      {anio:2018, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:26186843, valor_produccion:8407726, cantidad_ventas:25557374, valor_ventas:8218987},
-      {anio:2018, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:10414202, cantidad_ventas:0, valor_ventas:10398026},
-      {anio:2019, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:175691, valor_produccion:23090108, cantidad_ventas:175298, valor_ventas:23073541},
-      {anio:2019, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:28949, valor_produccion:5368944, cantidad_ventas:28313, valor_ventas:5143181},
-      {anio:2019, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:23245858, valor_produccion:8619546, cantidad_ventas:22533241, valor_ventas:8377031},
-      {anio:2019, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:11336314, cantidad_ventas:0, valor_ventas:11319459},
-      {anio:2020, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:123524, valor_produccion:17124026, cantidad_ventas:124053, valor_ventas:17249444},
-      {anio:2020, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:19685, valor_produccion:4025437, cantidad_ventas:19347, valor_ventas:3879325},
-      {anio:2020, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:20147693, valor_produccion:7846613, cantidad_ventas:19769280, valor_ventas:7747410},
-      {anio:2020, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:10813381, cantidad_ventas:0, valor_ventas:10789575},
-      {anio:2021, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:185995, valor_produccion:23795265, cantidad_ventas:185305, valor_ventas:23685156},
-      {anio:2021, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:28438, valor_produccion:5708733, cantidad_ventas:28780, valor_ventas:5720500},
-      {anio:2021, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:26938373, valor_produccion:10184153, cantidad_ventas:25697116, valor_ventas:9734413},
-      {anio:2021, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:10585090, cantidad_ventas:0, valor_ventas:10518458},
-      {anio:2022, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:180121, valor_produccion:25640119, cantidad_ventas:177303, valor_ventas:25393559},
-      {anio:2022, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:29980, valor_produccion:6382197, cantidad_ventas:29525, valor_ventas:6197043},
-      {anio:2022, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:23061566, valor_produccion:8949533, cantidad_ventas:22900874, valor_ventas:8879401},
-      {anio:2022, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:12414478, cantidad_ventas:0, valor_ventas:12451851},
-      {anio:2023, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:147570, valor_produccion:21501857, cantidad_ventas:146357, valor_ventas:21390298},
-      {anio:2023, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:25428, valor_produccion:5086594, cantidad_ventas:24848, valor_ventas:4822981},
-      {anio:2023, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:22071379, valor_produccion:8570446, cantidad_ventas:21780225, valor_ventas:8462449},
-      {anio:2023, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:13141060, cantidad_ventas:0, valor_ventas:13137455},
-      {anio:2024, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:139766, valor_produccion:19816670, cantidad_ventas:139492, valor_ventas:19790097},
-      {anio:2024, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:22976, valor_produccion:4274791, cantidad_ventas:22622, valor_ventas:4143232},
-      {anio:2024, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:22988318, valor_produccion:8586298, cantidad_ventas:22547345, valor_ventas:8506680},
-      {anio:2024, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:14307593, cantidad_ventas:0, valor_ventas:14251670},
-      {anio:2025, clave:"313210", actividad:"Fabricación de telas anchas de tejido de trama", cantidad_produccion:87645, valor_produccion:12361492, cantidad_ventas:87792, valor_ventas:12375517},
-      {anio:2025, clave:"313240", actividad:"Fabricación de telas de tejido de punto", cantidad_produccion:14410, valor_produccion:2405121, cantidad_ventas:14349, valor_ventas:2395648},
-      {anio:2025, clave:"314120", actividad:"Confección de cortinas, blancos y similares", cantidad_produccion:14294533, valor_produccion:5300761, cantidad_ventas:14192996, valor_ventas:5287447},
-      {anio:2025, clave:"315223", actividad:"Confección en serie de uniformes", cantidad_produccion:0, valor_produccion:10092397, cantidad_ventas:0, valor_ventas:10102496},
-    ];
+    document.addEventListener('DOMContentLoaded', function() {
+      /* ===== Análisis de Causa Raíz y Solución =====
+         Causa Raíz:
+         1.  Uso de variables CSS en atributos SVG: El código intentaba asignar colores a los elementos SVG usando `var(--primary-color)`. La mayoría de los navegadores no resuelven estas variables CSS cuando se usan en atributos SVG a través de JavaScript, resultando en colores inválidos y gráficos invisibles.
+         2.  Llamada a función faltante: El gráfico para 'chart-ied' no se dibujaba porque faltaba la llamada a la función `drawLineChart` correspondiente.
 
-    /* === DATOS PESTAÑA 2: DEPENDENCIAS Y PROVEEDORES === */
-    const rawDataInstituciones = [
-      { anio: 2021, entidad: "IMSS", valor: 459 }, { anio: 2022, entidad: "IMSS", valor: 344 }, { anio: 2023, entidad: "IMSS", valor: 0 }, { anio: 2024, entidad: "IMSS", valor: 74 }, { anio: 2025, entidad: "IMSS", valor: 229 },
-      { anio: 2021, entidad: "IMSSBIENESTAR", valor: 0 }, { anio: 2022, entidad: "IMSSBIENESTAR", valor: 0 }, { anio: 2023, entidad: "IMSSBIENESTAR", valor: 0 }, { anio: 2024, entidad: "IMSSBIENESTAR", valor: 0 }, { anio: 2025, entidad: "IMSSBIENESTAR", valor: 858 },
-      { anio: 2021, entidad: "SADER", valor: 0 }, { anio: 2022, entidad: "SADER", valor: 0 }, { anio: 2023, entidad: "SADER", valor: 80 }, { anio: 2024, entidad: "SADER", valor: 167 }, { anio: 2025, entidad: "SADER", valor: 174 },
-      { anio: 2021, entidad: "SEMAR", valor: 0 }, { anio: 2022, entidad: "SEMAR", valor: 25 }, { anio: 2023, entidad: "SEMAR", valor: 0 }, { anio: 2024, entidad: "SEMAR", valor: 99 }, { anio: 2025, entidad: "SEMAR", valor: 80 },
-      { anio: 2021, entidad: "ISSSTE", valor: 46 }, { anio: 2022, entidad: "ISSSTE", valor: 0 }, { anio: 2023, entidad: "ISSSTE", valor: 0 }, { anio: 2024, entidad: "ISSSTE", valor: 0 }, { anio: 2025, entidad: "ISSSTE", valor: 95 },
-      { anio: 2021, entidad: "SEDENA", valor: 0 }, { anio: 2022, entidad: "SEDENA", valor: 13 }, { anio: 2023, entidad: "SEDENA", valor: 0 }, { anio: 2024, entidad: "SEDENA", valor: 86 }, { anio: 2025, entidad: "SEDENA", valor: 0 },
-      { anio: 2021, entidad: "IPN", valor: 0 }, { anio: 2022, entidad: "IPN", valor: 0 }, { anio: 2023, entidad: "IPN", valor: 0 }, { anio: 2024, entidad: "IPN", valor: 83 }, { anio: 2025, entidad: "IPN", valor: 0 },
-      { anio: 2021, entidad: "SEP", valor: 0 }, { anio: 2022, entidad: "SEP", valor: 0 }, { anio: 2023, entidad: "SEP", valor: 50 }, { anio: 2024, entidad: "SEP", valor: 0 }, { anio: 2025, entidad: "SEP", valor: 0 },
-      { anio: 2021, entidad: "DICONSA", valor: 49 }, { anio: 2022, entidad: "DICONSA", valor: 0 }, { anio: 2023, entidad: "DICONSA", valor: 0 }, { anio: 2024, entidad: "DICONSA", valor: 0 }, { anio: 2025, entidad: "DICONSA", valor: 0 },
-      { anio: 2021, entidad: "INPER", valor: 44 }, { anio: 2022, entidad: "INPER", valor: 0 }, { anio: 2023, entidad: "INPER", valor: 0 }, { anio: 2024, entidad: "INPER", valor: 0 }, { anio: 2025, entidad: "INPER", valor: 0 },
-      { anio: 2021, entidad: "SEGOB", valor: 0 }, { anio: 2022, entidad: "SEGOB", valor: 0 }, { anio: 2023, entidad: "SEGOB", valor: 40 }, { anio: 2024, entidad: "SEGOB", valor: 0 }, { anio: 2025, entidad: "SEGOB", valor: 0 },
-      { anio: 2021, entidad: "INBAL", valor: 33 }, { anio: 2022, entidad: "INBAL", valor: 0 }, { anio: 2023, entidad: "INBAL", valor: 0 }, { anio: 2024, entidad: "INBAL", valor: 0 }, { anio: 2025, entidad: "INBAL", valor: 0 },
-      { anio: 2021, entidad: "SSA", valor: 0 }, { anio: 2022, entidad: "SSA", valor: 0 }, { anio: 2023, entidad: "SSA", valor: 31 }, { anio: 2024, entidad: "SSA", valor: 0 }, { anio: 2025, entidad: "SSA", valor: 0 },
-      { anio: 2021, entidad: "CULTURA", valor: 0 }, { anio: 2022, entidad: "CULTURA", valor: 0 }, { anio: 2023, entidad: "CULTURA", valor: 27 }, { anio: 2024, entidad: "CULTURA", valor: 0 }, { anio: 2025, entidad: "CULTURA", valor: 0 },
-      { anio: 2021, entidad: "ESSA", valor: 0 }, { anio: 2022, entidad: "ESSA", valor: 16 }, { anio: 2023, entidad: "ESSA", valor: 0 }, { anio: 2024, entidad: "ESSA", valor: 0 }, { anio: 2025, entidad: "ESSA", valor: 0 },
-      { anio: 2021, entidad: "HG", valor: 0 }, { anio: 2022, entidad: "HG", valor: 13 }, { anio: 2023, entidad: "HG", valor: 0 }, { anio: 2024, entidad: "HG", valor: 0 }, { anio: 2025, entidad: "HG", valor: 0 },
-    ];
+         Solución Implementada:
+         -   Se definen los colores como constantes de JavaScript (`COLOR_PRIMARY`, etc.) con sus valores hexadecimales.
+         -   Estas constantes se usan para definir los colores en los objetos de datos de los gráficos.
+         -   Se añade la llamada a `drawLineChart('chart-ied', ied)` para renderizar el gráfico que faltaba.
+      */
+      var COLOR_PRIMARY = '#1E5B4F';
+      var COLOR_SECONDARY = '#A6802D';
+      var COLOR_ACCENT = '#9C2348';
+      var COLORS_PIE = [COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, '#7f8c8d', '#c0392b', '#f1c40f'];
 
-    const rawDataProveedores = [
-      { anio: 2021, entidad: "ROGERI SA DE CV", valor: 104 }, { anio: 2022, entidad: "ROGERI SA DE CV", valor: 211 }, { anio: 2023, entidad: "ROGERI SA DE CV", valor: 0 }, { anio: 2024, entidad: "ROGERI SA DE CV", valor: 0 }, { anio: 2025, entidad: "ROGERI SA DE CV", valor: 0 },
-      { anio: 2021, entidad: "MANUFACTURAS SERKA CONTINENTALES SA DE CV", valor: 0 }, { anio: 2022, entidad: "MANUFACTURAS SERKA CONTINENTALES SA DE CV", valor: 0 }, { anio: 2023, entidad: "MANUFACTURAS SERKA CONTINENTALES SA DE CV", valor: 0 }, { anio: 2024, entidad: "MANUFACTURAS SERKA CONTINENTALES SA DE CV", valor: 118 }, { anio: 2025, entidad: "MANUFACTURAS SERKA CONTINENTALES SA DE CV", valor: 111 },
-      { anio: 2021, entidad: "BECESA SA DE CV", valor: 0 }, { anio: 2022, entidad: "BECESA SA DE CV", valor: 0 }, { anio: 2023, entidad: "BECESA SA DE CV", valor: 0 }, { anio: 2024, entidad: "BECESA SA DE CV", valor: 153 }, { anio: 2025, entidad: "BECESA SA DE CV", valor: 0 },
-      { anio: 2021, entidad: "INDALJIM SA DE CV", valor: 77 }, { anio: 2022, entidad: "INDALJIM SA DE CV", valor: 67 }, { anio: 2023, entidad: "INDALJIM SA DE CV", valor: 0 }, { anio: 2024, entidad: "INDALJIM SA DE CV", valor: 0 }, { anio: 2025, entidad: "INDALJIM SA DE CV", valor: 0 },
-      { anio: 2021, entidad: "BELL-KROM SA DE CV", valor: 0 }, { anio: 2022, entidad: "BELL-KROM SA DE CV", valor: 0 }, { anio: 2023, entidad: "BELL-KROM SA DE CV", valor: 0 }, { anio: 2024, entidad: "BELL-KROM SA DE CV", valor: 0 }, { anio: 2025, entidad: "BELL-KROM SA DE CV", valor: 122 },
-      { anio: 2021, entidad: "LMR GRUP SA DE CV", valor: 0 }, { anio: 2022, entidad: "LMR GRUP SA DE CV", valor: 0 }, { anio: 2023, entidad: "LMR GRUP SA DE CV", valor: 110 }, { anio: 2024, entidad: "LMR GRUP SA DE CV", valor: 0 }, { anio: 2025, entidad: "LMR GRUP SA DE CV", valor: 0 },
-      { anio: 2021, entidad: "GRUPO INDUSTRIAL ASAD SA DE CV", valor: 0 }, { anio: 2022, entidad: "GRUPO INDUSTRIAL ASAD SA DE CV", valor: 0 }, { anio: 2023, entidad: "GRUPO INDUSTRIAL ASAD SA DE CV", valor: 0 }, { anio: 2024, entidad: "GRUPO INDUSTRIAL ASAD SA DE CV", valor: 107 }, { anio: 2025, entidad: "GRUPO INDUSTRIAL ASAD SA DE CV", valor: 0 },
-      { anio: 2021, entidad: "GRUPO ROMAY SA DE CV", valor: 0 }, { anio: 2022, entidad: "GRUPO ROMAY SA DE CV", valor: 0 }, { anio: 2023, entidad: "GRUPO ROMAY SA DE CV", valor: 0 }, { anio: 2024, entidad: "GRUPO ROMAY SA DE CV", valor: 0 }, { anio: 2025, entidad: "GRUPO ROMAY SA DE CV", valor: 100 },
-      { anio: 2021, entidad: "MAGNOCOM SA DE CV", valor: 0 }, { anio: 2022, entidad: "MAGNOCOM SA DE CV", valor: 0 }, { anio: 2023, entidad: "MAGNOCOM SA DE CV", valor: 0 }, { anio: 2024, entidad: "MAGNOCOM SA DE CV", valor: 100 }, { anio: 2025, entidad: "MAGNOCOM SA DE CV", valor: 0 },
-      { anio: 2021, entidad: "UNIFORMES EL TREN SA DE CV", valor: 0 }, { anio: 2022, entidad: "UNIFORMES EL TREN SA DE CV", valor: 0 }, { anio: 2023, entidad: "UNIFORMES EL TREN SA DE CV", valor: 0 }, { anio: 2024, entidad: "UNIFORMES EL TREN SA DE CV", valor: 100 }, { anio: 2025, entidad: "UNIFORMES EL TREN SA DE CV", valor: 0 },
-      { anio: 2021, entidad: "WAYAK MEDIA SA DE CV", valor: 0 }, { anio: 2022, entidad: "WAYAK MEDIA SA DE CV", valor: 0 }, { anio: 2023, entidad: "WAYAK MEDIA SA DE CV", valor: 0 }, { anio: 2024, entidad: "WAYAK MEDIA SA DE CV", valor: 0 }, { anio: 2025, entidad: "WAYAK MEDIA SA DE CV", valor: 100 },
-      { anio: 2021, entidad: "AM CENIT SA DE CV", valor: 0 }, { anio: 2022, entidad: "AM CENIT SA DE CV", valor: 0 }, { anio: 2023, entidad: "AM CENIT SA DE CV", valor: 99 }, { anio: 2024, entidad: "AM CENIT SA DE CV", valor: 0 }, { anio: 2025, entidad: "AM CENIT SA DE CV", valor: 0 },
-      { anio: 2021, entidad: "COMERCIALIZADORA MUNRRO SA DE CV", valor: 0 }, { anio: 2022, entidad: "COMERCIALIZADORA MUNRRO SA DE CV", valor: 0 }, { anio: 2023, entidad: "COMERCIALIZADORA MUNRRO SA DE CV", valor: 0 }, { anio: 2024, entidad: "COMERCIALIZADORA MUNRRO SA DE CV", valor: 0 }, { anio: 2025, entidad: "COMERCIALIZADORA MUNRRO SA DE CV", valor: 99 },
-      { anio: 2021, entidad: "IQ ORGULLO DE PERTENENCIA SA DE CV", valor: 0 }, { anio: 2022, entidad: "IQ ORGULLO DE PERTENENCIA SA DE CV", valor: 0 }, { anio: 2023, entidad: "IQ ORGULLO DE PERTENENCIA SA DE CV", valor: 76 }, { anio: 2024, entidad: "IQ ORGULLO DE PERTENENCIA SA DE CV", valor: 0 }, { anio: 2025, entidad: "IQ ORGULLO DE PERTENENCIA SA DE CV", valor: 0 },
-      { anio: 2021, entidad: "TOPO TACTICO SA DE CV", valor: 0 }, { anio: 2022, entidad: "TOPO TACTICO SA DE CV", valor: 0 }, { anio: 2023, entidad: "TOPO TACTICO SA DE CV", valor: 76 }, { anio: 2024, entidad: "TOPO TACTICO SA DE CV", valor: 0 }, { anio: 2025, entidad: "TOPO TACTICO SA DE CV", valor: 0 },
-      { anio: 2021, entidad: "TEXTILES LUNA Y SOL SA DE CV", valor: 0 }, { anio: 2022, entidad: "TEXTILES LUNA Y SOL SA DE CV", valor: 0 }, { anio: 2023, entidad: "TEXTILES LUNA Y SOL SA DE CV", valor: 69 }, { anio: 2024, entidad: "TEXTILES LUNA Y SOL SA DE CV", valor: 0 }, { anio: 2025, entidad: "TEXTILES LUNA Y SOL SA DE CV", valor: 0 },
-      { anio: 2021, entidad: "SERVICIOS Y ASESORIA DE PRODUCCION SA DE CV", valor: 46 }, { anio: 2022, entidad: "SERVICIOS Y ASESORIA DE PRODUCCION SA DE CV", valor: 8 }, { anio: 2023, entidad: "SERVICIOS Y ASESORIA DE PRODUCCION SA DE CV", valor: 0 }, { anio: 2024, entidad: "SERVICIOS Y ASESORIA DE PRODUCCION SA DE CV", valor: 0 }, { anio: 2025, entidad: "SERVICIOS Y ASESORIA DE PRODUCCION SA DE CV", valor: 0 },
-      { anio: 2021, entidad: "HILADOS Y TEJIDOS EL CARRETE", valor: 52 }, { anio: 2022, entidad: "HILADOS Y TEJIDOS EL CARRETE", valor: 0 }, { anio: 2023, entidad: "HILADOS Y TEJIDOS EL CARRETE", valor: 0 }, { anio: 2024, entidad: "HILADOS Y TEJIDOS EL CARRETE", valor: 0 }, { anio: 2025, entidad: "HILADOS Y TEJIDOS EL CARRETE", valor: 0 },
-      { anio: 2021, entidad: "ABC UNIFORMES SA DE CV", valor: 18 }, { anio: 2022, entidad: "ABC UNIFORMES SA DE CV", valor: 6 }, { anio: 2023, entidad: "ABC UNIFORMES SA DE CV", valor: 0 }, { anio: 2024, entidad: "ABC UNIFORMES SA DE CV", valor: 0 }, { anio: 2025, entidad: "ABC UNIFORMES SA DE CV", valor: 0 },
-      { anio: 2021, entidad: "MARIA EUGENIA MONROY ARCOS", valor: 0 }, { anio: 2022, entidad: "MARIA EUGENIA MONROY ARCOS", valor: 17 }, { anio: 2023, entidad: "MARIA EUGENIA MONROY ARCOS", valor: 0 }, { anio: 2024, entidad: "MARIA EUGENIA MONROY ARCOS", valor: 0 }, { anio: 2025, entidad: "MARIA EUGENIA MONROY ARCOS", valor: 0 },
-    ];
-
-    /* === INICIO: LÓGICA GENERAL Y PESTAÑA 1 === */
-    function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
-    const primary = cssVar('--primary-color') || '#1E5B4F';
-    const palette = [primary, cssVar('--secondary-color')||'#A6802D', cssVar('--accent-color')||'#9C2348', '#3A82A8', '#6A3E7A', '#9A5A2A', '#5C8A3A', '#D07A4A'];
-
-    const years = Array.from(new Set(rawData.map(r=> r.anio))).sort((a,b)=>a-b);
-    const activities = Array.from(new Set(rawData.map(r=> r.actividad)));
-    const nf = new Intl.NumberFormat('es-MX');
-
-    // Formateador inteligente para abreviar números grandes en los ejes (ej. 1.2M, 500k)
-    function axisLabelFormatter(v) {
-      if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(1) + 'M';
-      if (Math.abs(v) >= 1e3) return (v / 1e3).toFixed(0) + 'k';
-      return v;
-    }
-
-    // seriesMap
-    const seriesMap = {};
-    activities.forEach(act => {
-      const rows = years.map(y => rawData.find(r=> r.actividad===act && r.anio===y) || null);
-      seriesMap[act] = {
-        clave: (rows.find(r=>r) || {}).clave || '',
-        valor_produccion: rows.map(r => r? r.valor_produccion : 0),
-        cantidad_produccion: rows.map(r => r? r.cantidad_produccion : 0),
-        valor_ventas: rows.map(r => r? r.valor_ventas : 0),
-        cantidad_ventas: rows.map(r => r? r.cantidad_ventas : 0)
-      };
-    });
-
-    function metricKey(metric, act, idx){
-      const s = seriesMap[act];
-      return s ? (s[metric][idx] || 0) : 0;
-    }
-    function totalsByYear(metric){ return years.map((y, yi) => activities.reduce((acc, a) => acc + (metricKey(metric, a, yi)||0), 0)); }
-
-    const main = echarts.init(document.getElementById('chart-main'), null, {renderer:'canvas'});
-    const stack = echarts.init(document.getElementById('chart-stack'), null, {renderer:'canvas'});
-    const donut = echarts.init(document.getElementById('chart-donut'), null, {renderer:'canvas'});
-
-    function groupSmallSlices(rawSlices, thresholdPercent=1){
-      const total = rawSlices.reduce((s,r)=> s+(r.value||0),0) || 1;
-      const big = [], small = [];
-      rawSlices.forEach(r => { const pct = (r.value/total)*100; (isNaN(pct) || pct < thresholdPercent) ? small.push(r) : big.push({...r, pct}); });
-      if(small.length){
-        const othersValue = small.reduce((s,r)=>s+(r.value||0),0);
-        big.push({ name:'Otros', value: othersValue, itemStyle:{ color:'#666' }, pct: (othersValue/total)*100 });
-      }
-      big.sort((a,b)=> (b.value||0) - (a.value||0));
-      return big;
-    }
-
-    function buildMainOptions(metric, { useLog=false, normalize=false, showTotals=false } = {}){
-      const labelMap = { valor_produccion:'Valor de producción (miles)', cantidad_produccion:'Cantidad de producción', valor_ventas:'Valor de ventas (miles)', cantidad_ventas:'Cantidad ventas' };
-      document.getElementById('title-main').textContent = `Evolución de: ${labelMap[metric]}`;
-
-      if(showTotals){
-        let totals = totalsByYear(metric);
-        if(normalize){
-          const first = totals.find(v=>v>0);
-          totals = first ? totals.map(v=> v? (v/first)*100 : null) : totals.map(_=>null);
-        } else if(useLog){
-          totals = totals.map(v => v===0? null : v);
+      // --- Tooltip Global ---
+      var tooltip = document.getElementById('chart-tooltip');
+      document.addEventListener('mousemove', function(e) {
+        if (tooltip.style.display === 'block') {
+          tooltip.style.left = (e.pageX + 15) + 'px';
+          tooltip.style.top = (e.pageY + 15) + 'px';
         }
-        const opt = {
-          backgroundColor:'transparent',
-          tooltip:{ trigger:'axis', formatter: p => `<strong>${p[0].axisValue}</strong><br/>Total: <strong>${nf.format(Math.round(p[0].data*100)/100)}</strong>` },
-          xAxis:{ type:'category', data: years, axisLabel:{ color: cssVar('--text') } },
-          yAxis: useLog ? { type:'log', logBase:10, axisLabel:{ color: cssVar('--text'), formatter: axisLabelFormatter } } : { axisLabel:{ color: cssVar('--text'), formatter: axisLabelFormatter } },
-          series:[{ name:'Total', type:'line', smooth:true, data: totals, itemStyle:{ color: primary }, areaStyle:{ opacity:0.14 }, lineStyle:{ width:3 } }],
-          grid:{ left:'6%', right:'8%', top:90, bottom:70 },
-          dataZoom:[{ type:'inside', start:0, end:100 }, { start:0, end:100 }]
-        };
-        return opt;
-      }
- 
-      const rawSeries = activities.map((act, idx) => {
-        const arr = years.map((y, yi) => metricKey(metric, act, yi) || 0);
-        return { name: act, data: arr.map(v => v===0? (useLog? null : 0) : v), color: palette[idx%palette.length], raw: arr };
       });
 
-      const seriesPrepared = rawSeries.map(s => {
-        if(normalize){
-          const first = s.raw.find(v=>v>0);
-          return first ? {...s, data: s.raw.map(v => v? (v/first)*100 : null), itemStyle:{ color: s.color }} : {...s, data:s.raw.map(_=>null), itemStyle:{ color:s.color }};
-        }
-        return {...s, itemStyle:{ color:s.color }};
-      });
+    var pib = {
+      years:['2018','2019','2020','2021','2022','2023','2024','2025 Sep'],
+      series:[
+        {name:'313', color:COLOR_PRIMARY, values:[100,101.1,104.2,109.6,122.5,122.1,123.6,126.0]},
+        {name:'314', color:COLOR_SECONDARY, values:[100,102.4,105.5,113.7,119.9,122.7,125.5,127.8]},
+        {name:'315', color:COLOR_ACCENT, values:[100,105.3,110.2,118.5,130.3,126.8,130.1,135.5]}
+      ]
+    };
 
-      return {
-        backgroundColor:'transparent',
-        tooltip:{ 
-          trigger:'axis', 
-          axisPointer:{ type:'cross' }, 
-          textStyle: { fontSize: 12 }, // Tooltip más pequeño
-          formatter: params => {
-            const year = params[0].axisValue; 
-            let s = `<strong style="font-size:13px;">${year}</strong><br/>`;
-            params.forEach(p => { 
-              const seriesName = p.seriesName.length > 40 ? p.seriesName.substring(0, 38) + '...' : p.seriesName;
-              s += `<div style="display:flex;align-items:center;margin-top:4px;"><span style="display:inline-block;margin-right:6px;width:10px;height:10px;background:${p.color};border-radius:2px;"></span> ${seriesName}: <strong style="margin-left:auto;padding-left:12px;">${p.data==null ? '—' : nf.format(Math.round(p.data*100)/100)}</strong></div>`; 
+    var ied = {
+      years:['2019','2020','2021','2022','2023','2024','Mar 2025'],
+      series:[
+        {name:'313', color:COLOR_PRIMARY, values:[2.4,1.0,37.1,24.6,10.2,4.8,-5.8]},
+        {name:'314', color:COLOR_SECONDARY, values:[23.1,18.2,19.4,31.7,17.3,64.0,2.3]},
+        {name:'315', color:COLOR_ACCENT, values:[76.3,23.2,8.0,62.5,-4.5,51.0,13.3]}
+      ]
+    };
+
+    var trade = {
+      labels:['Cierre parcial 2024','Coyuntura 2025 (Ene-Sep)'],
+      imports:[12394,9874],
+      exports:[8114,5561]
+    };
+
+    var prodVal = {
+      labels:['313','314','315','Total'],
+      production:[467012975,186428225,545603398,1199044598],
+      sales:[457989155,185327239,542193414,1185559808]
+    };
+
+    var prodQty = {
+      labels:['313','314','315','Total'],
+      production:[4492568,303663003,688381603,996537174],
+      sales:[4400535,296722051,670934639,972057225]
+    };
+
+    var balanceSub = {labels:['313','314','315'], imports:[1180515,1542439,1960358], exports:[810395,725032,2726073]};
+
+    var origins = [{label:'China',value:18500},{label:'USA',value:12100},{label:'Vietnam',value:3850},{label:'India',value:1550},{label:'Bangladés',value:1350},{label:'Otros',value:10700}];
+    var dest = [{label:'Estados Unidos',value:10900},{label:'Canadá',value:450},{label:'Guatemala',value:220},{label:'Colombia',value:110},{label:'Honduras',value:80},{label:'Otros',value:410}];
+
+    var firmsE = {
+      years:['2020','2021','2022','2023','2024'],
+      series:[
+        {name:'313', color: '#1E5B4F', vals:[121,118,108,103,101]},
+        {name:'314', color: '#A6802D', vals:[86,90,87,85,80]},
+        {name:'315', color: '#9C2348', vals:[286,275,266,264,228]}
+      ]
+    };
+
+    var firmsI = {
+        years: ['2020', '2021', '2022', '2023', '2024'],
+        series: [
+            { name: '313', color: '#1E5B4F', vals: [153, 153, 149, 142, 142] },
+            { name: '314', color: '#A6802D', vals: [104, 109, 107, 113, 105] },
+            { name: '315', color: '#9C2348', vals: [303, 302, 292, 275, 251] }
+        ]
+    };
+
+    function createSVG(w,h){
+      var svgNS = 'http://www.w3.org/2000/svg';
+      var svg = document.createElementNS(svgNS,'svg');
+      svg.setAttribute('viewBox','0 0 ' + w + ' ' + h);
+      svg.setAttribute('width','100%');
+      svg.setAttribute('height','100%');
+      // ensure readable text by default
+      svg.setAttribute('style','font-family:Arial,Helvetica,sans-serif');
+      return svg;
+    }
+
+    function drawLineChart(containerId, data){
+      var c = document.getElementById(containerId);
+      if(!c) return;
+      var w = Math.max(100, c.clientWidth) || 460;
+      var h = c.clientHeight || 220;
+      var p = { top: 20, right: 20, bottom: 30, left: 40 };
+      var svg = createSVG(w,h);
+
+      var allVals = [];
+      for(var i=0;i<data.series.length;i++) allVals = allVals.concat(data.series[i].values);
+      var maxVal = Math.ceil(Math.max.apply(null, allVals) / 10) * 10;
+      var minVal = Math.floor(Math.min.apply(null, allVals) / 10) * 10;
+      if (minVal > 0) minVal = 0; // Start axis at 0 if all values are positive
+      if(!isFinite(maxVal)) maxVal = 1;
+      if(!isFinite(minVal)) minVal = 0;
+
+      var xStep = (w - p.left - p.right) / Math.max(1, (data.years.length - 1));
+      var yRange = maxVal - minVal || 1;
+
+      // Draw Y-axis grid lines and labels
+      var numGridLines = 5;
+      for (var i = 0; i <= numGridLines; i++) {
+        var val = minVal + (yRange / numGridLines) * i;
+        var y = p.top + (h - p.top - p.bottom) * (1 - (val - minVal) / yRange);
+        var line = document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1', p.left);
+        line.setAttribute('y1', y);
+        line.setAttribute('x2', w - p.right);
+        line.setAttribute('y2', y);
+        line.setAttribute('stroke', '#eee');
+        svg.appendChild(line);
+
+        var text = document.createElementNS('http://www.w3.org/2000/svg','text');
+        text.setAttribute('x', p.left - 8);
+        text.setAttribute('y', y + 3);
+        text.setAttribute('font-size', 10);
+        text.setAttribute('text-anchor', 'end');
+        text.setAttribute('fill', '#666');
+        text.textContent = val.toFixed(0);
+        svg.appendChild(text);
+      }
+
+      // Draw series lines and points
+      for(var si=0; si<data.series.length; si++){
+        var s = data.series[si];
+        var pointsArr = [];
+        for(var i=0;i<s.values.length;i++){
+          var v = s.values[i] || 0;
+          var x = p.left + i * xStep;
+          var y = p.top + (h - p.top - p.bottom) * (1 - (v - minVal) / yRange);
+          pointsArr.push(x + ',' + y);
+        }
+        var poly = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+        poly.setAttribute('points', pointsArr.join(' '));
+        poly.setAttribute('fill','none');
+        poly.setAttribute('stroke', s.color || COLOR_PRIMARY);
+        poly.setAttribute('stroke-width', 2.5);
+        poly.setAttribute('stroke-linejoin', 'round');
+        poly.setAttribute('stroke-linecap', 'round');
+        svg.appendChild(poly);
+
+        // Draw interactive points
+        for(var i=0;i<s.values.length;i++){
+          var v = s.values[i] || 0;
+          var x = p.left + i * xStep;
+          var y = p.top + (h - p.top - p.bottom) * (1 - (v - minVal) / yRange);
+          
+          var circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+          circle.setAttribute('cx', x);
+          circle.setAttribute('cy', y);
+          circle.setAttribute('r', 4);
+          circle.setAttribute('fill', s.color);
+          circle.setAttribute('stroke', 'white');
+          circle.setAttribute('stroke-width', 2);
+          circle.style.transition = 'r 0.2s';
+          svg.appendChild(circle);
+
+          var hitArea = document.createElementNS('http://www.w3.org/2000/svg','circle');
+          hitArea.setAttribute('cx', x);
+          hitArea.setAttribute('cy', y);
+          hitArea.setAttribute('r', 10);
+          hitArea.setAttribute('fill', 'transparent');
+          hitArea.style.cursor = 'pointer';
+          
+          (function(year, seriesName, value, pointCircle){
+            hitArea.addEventListener('mouseover', function(){
+              tooltip.innerHTML = 'Año: ' + year + '\nSerie: ' + seriesName + '\nValor: ' + value;
+              tooltip.style.display = 'block';
+              pointCircle.setAttribute('r', 6);
             });
-            return s;
-          }},
-        legend:{ type:'scroll', top:44, textStyle:{ color: cssVar('--muted') } },
-        toolbox:{ feature:{ saveAsImage:{ title:'Guardar PNG' } }, right:12 },
-        xAxis:{ type:'category', boundaryGap:false, data: years, axisLabel:{ color: cssVar('--text') } },
-        yAxis: useLog ? { type:'log', logBase:10, axisLabel:{ color: cssVar('--text'), formatter: axisLabelFormatter } } : { type:'value', axisLabel:{ color: cssVar('--text'), formatter: axisLabelFormatter } },
-        dataZoom:[{ type:'inside', start:0, end:100 }, { start:0, end:100 }],
-        grid:{ left:'6%', right:'8%', top:90, bottom:70 },
-        series: seriesPrepared.map(s=>({ name:s.name, type:'line', smooth:true, showSymbol:true, symbolSize:6, areaStyle:{ opacity:0.12 }, lineStyle:{ width:3 }, itemStyle: s.itemStyle, data: s.data }))
-      };
-    }
+            hitArea.addEventListener('mouseout', function(){
+              tooltip.style.display = 'none';
+              pointCircle.setAttribute('r', 4);
+            });
+          })(data.years[i], s.name, v, circle);
 
-    function buildStackOptions(metric){
-      const seriesOpt = activities.map((act, idx) => ({ name:act, type:'bar', stack:'total', itemStyle:{ color: palette[idx%palette.length] }, data: years.map((y, yi) => metricKey(metric, act, yi)||0) }));
-      return { backgroundColor:'transparent', tooltip:{ trigger:'axis', axisPointer:{ type:'shadow' } }, legend:{ show:false }, grid:{ left:'3%', right:'4%', bottom:'3%', top:20, containLabel:true }, xAxis:{ type:'category', data: years, axisLabel:{ color: cssVar('--text') } }, yAxis:{ axisLabel:{ color: cssVar('--text'), formatter: axisLabelFormatter } }, series: seriesOpt };
-    }
-
-    function buildDonutOptions(metric, year, otrosThresholdPercent=1){
-      const rawSlices = activities.map((act,i) => {
-        const row = rawData.find(r=> r.actividad===act && r.anio===year) || {cantidad_produccion:0, valor_produccion:0, cantidad_ventas:0, valor_ventas:0};
-        const val = metric==='valor_produccion'? row.valor_produccion : metric==='cantidad_produccion'? row.cantidad_produccion : metric==='valor_ventas'? row.valor_ventas : row.cantidad_ventas;
-        return { name: act, value: val, itemStyle:{ color: palette[i%palette.length] }, orig: row };
-      });
-      const grouped = groupSmallSlices(rawSlices, otrosThresholdPercent);
-
-      return {
-        tooltip:{ trigger:'item', formatter: params => {
-          if(params.name === 'Otros'){
-            const smalls = rawSlices.filter(r => grouped.every(g => g.name !== r.name));
-            const smallList = smalls.map(s => `${s.name}: ${nf.format(s.value)}`).join('<br/>');
-            return `<strong>Otros</strong><br/>Total: <strong>${nf.format(params.value)}</strong><br/><small>${smallList}</small>`;
-          } else {
-            return `<strong>${params.name}</strong><br/>Valor: <strong>${nf.format(params.value)}</strong>`;
-          }
-        }},
-        legend:{ orient:'vertical', left:'right', top:20, bottom:20, textStyle:{ color: cssVar('--muted') }, width:160 },
-        series:[{
-          type:'pie',
-          radius:['42%','68%'],
-          center:['40%','50%'],
-          avoidLabelOverlap:true,
-          label:{ show:true, position:'outside', formatter:'{b}\n{d}%', color: cssVar('--text') },
-          labelLine:{ length:10, length2:8 },
-          labelLayout:{ hideOverlap:true, moveOverlap:'shiftY' },
-          emphasis:{ itemStyle:{ shadowBlur:10, shadowOffsetX:0, shadowColor:'rgba(0,0,0,0.5)' } },
-          data: grouped
-        }]
-      };
-    }
-
-    // Render engine (usando notMerge:true al actualizar main y donut para evitar merge)
-    const metricSel = document.getElementById('metric');
-    const logChk = document.getElementById('logScale');
-    const normChk = document.getElementById('normalize');
-    const showTotalsChk = document.getElementById('showTotals');
-    const otrosThresholdInput = document.getElementById('otrosThreshold');
-
-    function renderAll(){
-      const metric = metricSel.value;
-      const useLog = logChk.checked;
-      const normalize = normChk.checked;
-      const showTotals = showTotalsChk.checked;
-
-      // Validar log: si no hay valores positivos, desactivar
-      if(useLog){
-        const maxVal = Math.max(...years.flatMap((y, yi) => activities.map(a => metricKey(metric, a, yi))));
-        if(maxVal <= 0){
-          logChk.checked = false;
-          alert('Log scale requiere valores positivos. Se ha desactivado Log.');
+          svg.appendChild(hitArea);
         }
       }
 
-      // IMPORTANT: use notMerge:true for main and donut to fully replace options (evita que estilos antiguos "persistan")
-      main.setOption(buildMainOptions(metric, { useLog: logChk.checked, normalize: normChk.checked, showTotals }), true);
-      stack.setOption(buildStackOptions(metric)); // stack use merge ok
-      const lastYear = Math.max(...years);
-      donut.setOption(buildDonutOptions(metric, lastYear, parseFloat(otrosThresholdInput.value) || 1), true);
+      // Draw X-axis labels
+      for(var i=0;i<data.years.length;i++){
+        var x = p.left + i * xStep;
+        var t = document.createElementNS('http://www.w3.org/2000/svg','text');
+        t.setAttribute('x',x);
+        t.setAttribute('y', h - p.bottom + 15);
+        t.setAttribute('font-size',11);
+        t.setAttribute('text-anchor','middle');
+        t.setAttribute('fill','#111');
+        t.textContent = data.years[i];
+        svg.appendChild(t);
+      }
 
-      renderLegend();
-      renderKPIs(metric);
-      renderSparklines(metric, { useLog: logChk.checked, normalize: normChk.checked });
+      c.appendChild(svg);
     }
 
-    function renderLegend(){
-      const container = document.getElementById('legendContainer'); container.innerHTML = '';
-      activities.forEach((act,i) => {
-        const pill = document.createElement('div'); pill.style.display='flex'; pill.style.alignItems='center'; pill.style.gap='8px'; pill.style.padding='6px 8px'; pill.style.borderRadius='999px'; pill.style.background='rgba(255,255,255,0.01)'; pill.style.fontSize='12px'; pill.style.cursor='pointer'; pill.title = act;
-        const sw = document.createElement('span'); sw.style.width='12px'; sw.style.height='12px'; sw.style.display='inline-block'; sw.style.background = palette[i%palette.length]; sw.style.borderRadius='3px';
-        pill.appendChild(sw); const txt = document.createElement('span'); txt.style.color='var(--muted)'; txt.textContent = `${seriesMap[act].clave}`; pill.appendChild(txt);
-        pill.onclick = () => {
-          const opt = main.getOption();
-          const idx = opt.series.findIndex(s => s.name === act);
-          if(idx >= 0){
-            opt.series[idx].lineStyle = opt.series[idx].lineStyle || {}; opt.series[idx].itemStyle = opt.series[idx].itemStyle || {};
-            const hidden = opt.series[idx].lineStyle.opacity === 0.15;
-            opt.series[idx].lineStyle.opacity = hidden ? 1 : 0.15; opt.series[idx].itemStyle.opacity = hidden ? 1 : 0.15;
-            main.setOption(opt);
-          }
-        };
-        container.appendChild(pill);
-      });
-    }
+    function drawStackedBars(containerId, labels, importsArr, exportsArr){
+      var c = document.getElementById(containerId);
+      if(!c) return;
+      var w = Math.max(100, c.clientWidth) || 460;
+      var h = c.clientHeight || 220;
+      var p = { top: 20, right: 20, bottom: 40, left: 40 };
+      var svg = createSVG(w,h);
 
-    function renderKPIs(metric){
-      const totals = totalsByYear(metric); const last = totals[totals.length-1]||0; const prev = totals[totals.length-2]||0; const diff = prev===0?0:((last-prev)/prev)*100;
-      const kpiContainer = document.getElementById('kpiContainer'); kpiContainer.innerHTML = '';
-      const a = document.createElement('div'); a.className='kpi'; a.innerHTML = `<div style="font-size:13px;color:var(--muted)">Total ${metric.includes('valor')? 'valor (miles)': 'cantidad'} (${years[years.length-1]})</div><div style="font-size:18px;font-weight:700">${nf.format(last)}</div><div style="color:${diff>=0? '#8ef':'#f88'};font-size:12px;font-weight:bold;">${diff>=0? '▲ '+diff.toFixed(1)+'%': '▼ '+diff.toFixed(1)+'%'} <span style="font-weight:normal;color:var(--muted);">vs ${years[years.length-2]}</span></div>`; kpiContainer.appendChild(a);
-      const b = document.createElement('div'); b.className='kpi'; b.innerHTML = `<div style="font-size:13px;color:var(--muted)">Años en vista</div><div style="font-size:18px;font-weight:700">${years.length}</div><div style="color:var(--muted);font-size:12px">Desde ${years[0]} hasta ${years[years.length-1]}</div>`; kpiContainer.appendChild(b);
+      var combined = importsArr.concat(exportsArr);
+      var maxVal = Math.ceil(Math.max.apply(null, combined) / 1000) * 1000;
+      if(!isFinite(maxVal) || maxVal===0) maxVal = 1;
 
-      activities.forEach((act,i) => {
-        const row = rawData.find(r => r.actividad === act && r.anio === years[years.length-1]) || {cantidad_produccion:0, valor_produccion:0, cantidad_ventas:0, valor_ventas:0};
-        const node = document.createElement('div'); node.className='kpi'; node.style.gridColumn='1/-1';
-        const value = (()=>{ if(metric==='valor_produccion') return row.valor_produccion; if(metric==='cantidad_produccion') return row.cantidad_produccion; if(metric==='valor_ventas') return row.valor_ventas; return row.cantidad_ventas; })();
-        node.innerHTML = `<div style="font-size:13px;color:var(--muted)">${act} (${seriesMap[act].clave})</div><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:700">${nf.format(value)}</div><div style="font-size:12px;color:var(--muted)">${years[years.length-1]}</div></div>`;
-        kpiContainer.appendChild(node);
-      });
-    }
+      var barGroupWidth = (w - p.left - p.right) / labels.length;
+      var barWidth = barGroupWidth * 0.35;
 
-    function renderSparklines(metric, { useLog=false, normalize=false } = {}){
-      const sparks = document.getElementById('sparks'); sparks.innerHTML = '';
-      activities.forEach((act,i) => {
-        const wrapper = document.createElement('div'); wrapper.className='sparkline';
-        const left = document.createElement('div'); left.style.flex='1';
-        const title = document.createElement('div'); title.style.fontSize='12px'; title.style.color='var(--muted)'; title.textContent = seriesMap[act].clave;
-        const last = metricKey(metric, act, years.length-1)||0; const val = document.createElement('div'); val.style.fontWeight='700'; val.style.fontSize='13px'; val.textContent = nf.format(last);
-        left.appendChild(title); left.appendChild(val);
-        const chartBox = document.createElement('div'); chartBox.style.width='140px'; chartBox.style.height='70px';
-        wrapper.appendChild(left); wrapper.appendChild(chartBox); sparks.appendChild(wrapper);
-        const mini = echarts.init(chartBox, null, {renderer:'canvas'});
-        let data = years.map((y, yi) => metricKey(metric, act, yi) || 0);
-        if(normalize){ const first = data.find(v=>v>0); data = first? data.map(v=> v? (v/first)*100:null): data.map(_=>null); } else if(useLog){ data = data.map(v=> v===0? null : v); }
-        mini.setOption({ grid:{ left:6, right:6, top:6, bottom:6 }, xAxis:{ show:false, type:'category', data: years }, yAxis:{ show:false, type:'value' }, series:[{ type:'line', data, smooth:true, lineStyle:{ width:2, color: palette[i%palette.length] }, areaStyle:{ opacity:0.06 } }] });
-      });
-    }
+      // Draw Y-axis grid lines
+      var numGridLines = 4;
+      for (var i = 0; i <= numGridLines; i++) {
+        var y = p.top + (h - p.top - p.bottom) / numGridLines * i;
+        var line = document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1', p.left);
+        line.setAttribute('y1', y);
+        line.setAttribute('x2', w - p.right);
+        line.setAttribute('y2', y);
+        line.setAttribute('stroke', '#eee');
+        svg.appendChild(line);
+        var val = maxVal * (1 - i / numGridLines);
+        var text = document.createElementNS('http://www.w3.org/2000/svg','text');
+        text.setAttribute('x', p.left - 8);
+        text.setAttribute('y', y + 3);
+        text.setAttribute('font-size', 10);
+        text.setAttribute('text-anchor', 'end');
+        text.setAttribute('fill', '#666');
+        text.textContent = (val/1000).toFixed(0) + 'k';
+        svg.appendChild(text);
+      }
 
-    document.getElementById('btnCSV').addEventListener('click', () => {
-      const keys = ['anio','clave','actividad','cantidad_produccion','valor_produccion','cantidad_ventas','valor_ventas'];
-      const rows = [keys.join(',')]; rawData.forEach(r=> rows.push(keys.map(k=> (r[k]==null? '' : String(r[k]).replace(/,/g,''))).join(',')));
-      const csv = rows.join('\n'); const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='produccion_textil_v4_1.csv'; a.click(); URL.revokeObjectURL(url);
-    });
+      for(var i=0;i<labels.length;i++){
+        var groupX = p.left + i * barGroupWidth;
+        var barSpacing = (barGroupWidth - (barWidth * 2)) / 3;
+        var x1 = groupX + barSpacing;
+        var x2 = x1 + barWidth + barSpacing;
 
-    document.getElementById('btnExport').addEventListener('click', () => { const url = main.getDataURL({ pixelRatio:2, backgroundColor:'#071422' }); const a = document.createElement('a'); a.href = url; a.download = 'evolucion_produccion_v4_1.png'; a.click(); });
-
-    // Play
-    let playTimer = null; let playIndex = 0;
-    function playToggle(){ const btn = document.getElementById('btnPlay'); if(playTimer){ clearInterval(playTimer); playTimer=null; btn.textContent='▶ Play'; return; } btn.textContent='⏸ Pausa'; playIndex=0; playTimer=setInterval(()=>{ const year = years[playIndex%years.length]; const pos = (playIndex/(years.length-1))*100; main.dispatchAction({ type:'dataZoom', start: Math.max(0,pos-10), end: Math.min(100,pos+10) }); donut.setOption(buildDonutOptions(metricSel.value, year, parseFloat(otrosThresholdInput.value)||1), true); playIndex++; }, 900); }
-    document.getElementById('btnPlay').addEventListener('click', playToggle);
-
-    // donut click toggles series in main (skip 'Otros')
-    donut.on('click', params => { const name = params.name; if(name==='Otros') return; const opt = main.getOption(); const idx = opt.series.findIndex(s=> s.name === name); if(idx>=0){ opt.series[idx].lineStyle = opt.series[idx].lineStyle || {}; opt.series[idx].itemStyle = opt.series[idx].itemStyle || {}; const hidden = opt.series[idx].lineStyle.opacity === 0.15; opt.series[idx].lineStyle.opacity = hidden ? 1 : 0.15; opt.series[idx].itemStyle.opacity = hidden ? 1 : 0.15; main.setOption(opt); } });
- 
-    metricSel.addEventListener('change', renderAll);
-    logChk.addEventListener('change', renderAll);
-    normChk.addEventListener('change', renderAll);
-    showTotalsChk.addEventListener('change', renderAll);
-    otrosThresholdInput.addEventListener('change', renderAll);
-    
-    // Tab switching logic
-    document.querySelector('.tab-buttons').addEventListener('click', (e) => {
-      if (e.target.matches('.tab-btn') && !e.target.classList.contains('active')) {
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+        var impH = (importsArr[i]/maxVal)*(h-p.top-p.bottom);
+        var expH = (exportsArr[i]/maxVal)*(h-p.top-p.bottom);
         
-        const tabId = e.target.dataset.tab;
-        e.target.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
+        var rect1 = createBar(x1, h - p.bottom - impH, barWidth, impH, COLOR_PRIMARY, 'Importaciones: ' + importsArr[i].toLocaleString());
+        var rect2 = createBar(x2, h - p.bottom - expH, barWidth, expH, COLOR_SECONDARY, 'Exportaciones: ' + exportsArr[i].toLocaleString());
+        
+        svg.appendChild(rect1);
+        svg.appendChild(rect2);
 
-        // Forzar el redimensionamiento de los gráficos en la pestaña que se acaba de activar
-        // Esto soluciona el problema de renderizado en contenedores ocultos (display: none)
-        if (tabId === 'dependencias') {
-          [mainDep, donutDep, stackDep].forEach(chart => chart.resize());
-        }
+        var labt = document.createElementNS('http://www.w3.org/2000/svg','text');
+        labt.setAttribute('x', x1 + barWidth + barSpacing/2);
+        labt.setAttribute('y',h - p.bottom + 15);
+        labt.setAttribute('font-size',11);
+        labt.setAttribute('text-anchor','middle');
+        labt.setAttribute('fill','#111');
+        labt.textContent = labels[i];
+        svg.appendChild(labt);
       }
-    });
-
-    /* === INICIO: LÓGICA PESTAÑA 2 (DEPENDENCIAS) === */
-    const depMetricSelect = document.getElementById('dep-metric-select');
-    const depYearSelect = document.getElementById('dep-year-select');
-    const otrosThresholdDepInput = document.getElementById('otrosThreshold-dep');
-    // Referencias a los nuevos checkboxes
-    const logChkDep = document.getElementById('logScale-dep');
-    const normChkDep = document.getElementById('normalize-dep');
-    const showTotalsChkDep = document.getElementById('showTotals-dep');
-
-    const mainDep = echarts.init(document.getElementById('chart-main-dep'), null, {renderer:'canvas'});
-    const stackDep = echarts.init(document.getElementById('chart-stack-dep'), null, {renderer:'canvas'});
-    const donutDep = echarts.init(document.getElementById('chart-donut-dep'), null, {renderer:'canvas'});
-
-    function getDataForDepTab() {
-      const selection = depMetricSelect.value;
-      const data = selection === 'instituciones' ? rawDataInstituciones : rawDataProveedores;
-      const years = Array.from(new Set(data.map(r => r.anio))).sort((a, b) => a - b);
-      const entities = Array.from(new Set(data.map(r => r.entidad)));
-      return { data, years, entities, selection };
+      c.appendChild(svg);
     }
 
-    function buildDepMainOptions({ data, years, entities, selection }, { useLog = false, normalize = false, showTotals = false, selectedYear = 'todos' } = {}) {
-      // Lógica para vista de un solo año (gráfica de barras)
-      if (selectedYear !== 'todos') {
-        const year = parseInt(selectedYear);
-        const yearData = data
-          .filter(r => r.anio === year && r.valor > 0)
-          .sort((a, b) => b.valor - a.valor);
+    function createBar(x, y, w, h, fill, tooltipText) {
+      var rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      rect.setAttribute('x', x);
+      rect.setAttribute('y', y);
+      rect.setAttribute('width', w);
+      rect.setAttribute('height', h);
+      rect.setAttribute('fill', fill);
+      rect.setAttribute('rx', 2); // Rounded corners
+      rect.style.transition = 'opacity 0.2s';
 
-        return {
-          backgroundColor: 'transparent',
-          tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: p => `<strong>${p[0].name}</strong><br/>Valor: <strong>${nf.format(p[0].value)}</strong>` },
-          grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-          xAxis: {
-            type: 'category',
-            data: yearData.map(d => d.entidad),
-            axisLabel: { color: cssVar('--text'), interval: 0, rotate: 30 }
-          },
-          yAxis: useLog 
-            ? { type: 'log', logBase: 10, axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } }
-            : { type: 'value', axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } },
-          dataZoom: [{ type: 'inside', start: 0, end: 100 }, { start: 0, end: 100 }],
-          series: [{
-            type: 'bar',
-            data: yearData.map((d, i) => ({ value: d.valor, itemStyle: { color: palette[i % palette.length] } })),
-          }]
-        };
-      }
-
-      // Lógica para mostrar totales (similar a la pestaña 1)
-      if (showTotals) {
-        let totals = years.map(y => data.filter(r => r.anio === y).reduce((sum, r) => sum + r.valor, 0));
-        if (normalize) {
-          const first = totals.find(v => v > 0);
-          totals = first ? totals.map(v => v ? (v / first) * 100 : null) : totals.map(_ => null);
-        } else if (useLog) {
-          totals = totals.map(v => v === 0 ? null : v);
-        }
-        return {
-          backgroundColor: 'transparent',
-          tooltip: { trigger: 'axis', formatter: p => `<strong>${p[0].axisValue}</strong><br/>Total: <strong>${nf.format(Math.round(p[0].data * 100) / 100)}</strong>` },
-          xAxis: { type: 'category', data: years, axisLabel: { color: cssVar('--text') } },
-          yAxis: useLog ? { type: 'log', logBase: 10, axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } } : { axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } },
-          series: [{
-            name: 'Total',
-            type: 'line',
-            smooth: true,
-            data: totals,
-            itemStyle: { color: primary },
-            areaStyle: { opacity: 0.14 },
-            lineStyle: { width: 3 }
-          }],
-          grid: { left: '6%', right: '4%', top: 70, bottom: 70 },
-          dataZoom: [{ type: 'inside', start: 0, end: 100 }, { start: 0, end: 100 }]
-        };
-      }
-
-      const series = entities.map((ent, idx) => {
-        const entityData = years.map(y => {
-          const record = data.find(r => r.anio === y && r.entidad === ent);
-          return record ? record.valor : 0;
-        });
-        return {
-          name: ent,
-          raw: entityData, // Guardamos los datos originales para normalizar
-          type: 'line',
-          smooth: true,
-          showSymbol: true,
-          symbolSize: 6,
-          areaStyle: { opacity: 0.12 },
-          lineStyle: { width: 3 },
-          itemStyle: { color: palette[idx % palette.length] }
-        };
-      }).map(s => {
-        if (normalize) {
-          const first = s.raw.find(v => v > 0);
-          return first ? { ...s, data: s.raw.map(v => v ? (v / first) * 100 : null) } : { ...s, data: s.raw.map(_ => null) };
-        }
-        // Aplicar log scale (convertir 0 a null)
-        return { ...s, data: useLog ? s.raw.map(v => v === 0 ? null : v) : s.raw };
+      rect.addEventListener('mouseover', function() {
+        tooltip.innerHTML = tooltipText;
+        tooltip.style.display = 'block';
+        rect.style.opacity = 0.8;
       });
-
-      return {
-        backgroundColor: 'transparent',
-        tooltip: { trigger: 'axis', axisPointer: { type: 'cross' }, formatter: p => `<strong style="font-size:13px;">${p[0].axisValue}</strong><br/>` + p.map(i => `<div style="display:flex;align-items:center;margin-top:4px;"><span style="display:inline-block;margin-right:6px;width:10px;height:10px;background:${i.color};border-radius:2px;"></span> ${i.seriesName.substring(0,40)}: <strong style="margin-left:auto;padding-left:12px;">${nf.format(i.data)}</strong></div>`).join('') },
-        legend: { type: 'scroll', top: 10, textStyle: { color: cssVar('--muted') } },
-        toolbox: { feature: { saveAsImage: { title: 'Guardar PNG' } }, right: 12 },
-        xAxis: { type: 'category', boundaryGap: false, data: years, axisLabel: { color: cssVar('--text') } },
-        yAxis: useLog ? { type: 'log', logBase: 10, axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } } : { type: 'value', axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } },
-        dataZoom: [{ type: 'inside', start: 0, end: 100 }, { start: 0, end: 100 }],
-        grid: { left: '6%', right: '4%', top: 70, bottom: 70 },
-        series: series
-      };
-    }
-
-    function buildDepDonutOptions({ data, years, entities, selection }, otrosThresholdPercent) {
-      const lastYear = Math.max(...years);
-      const rawSlices = entities.map((ent, i) => {
-        const record = data.find(r => r.anio === lastYear && r.entidad === ent);
-        return { name: ent, value: record ? record.valor : 0, itemStyle: { color: palette[i % palette.length] } };
+      rect.addEventListener('mouseout', function() {
+        tooltip.style.display = 'none';
+        rect.style.opacity = 1;
       });
-      const grouped = groupSmallSlices(rawSlices, otrosThresholdPercent);
-      return {
-        tooltip: { trigger: 'item', formatter: p => `<strong>${p.name}</strong><br/>Valor: <strong>${nf.format(p.value)}</strong> (${p.percent}%)` },
-        legend: { show: false },
-        series: [{ type: 'pie', radius: ['42%', '68%'], center: ['50%', '50%'], avoidLabelOverlap: true, label: { show: true, position: 'outside', formatter: '{b}\n{d}%', color: cssVar('--text') }, labelLine: { length: 10, length2: 8 }, data: grouped }]
-      };
+      return rect;
     }
 
-    function buildDepStackOptions({ data, years, entities, selection }) {
-        const series = entities.map((ent, idx) => ({
-            name: ent, type: 'bar', stack: 'total', itemStyle: { color: palette[idx % palette.length] },
-            data: years.map(y => (data.find(r => r.anio === y && r.entidad === ent) || {valor: 0}).valor)
-        }));
-        return { backgroundColor: 'transparent', tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } }, legend: { show: false }, grid: { left: '3%', right: '4%', bottom: '3%', top: 20, containLabel: true }, xAxis: { type: 'category', data: years, axisLabel: { color: cssVar('--text') } }, yAxis: { axisLabel: { color: cssVar('--text'), formatter: axisLabelFormatter } }, series: series };
-    }
-
-    function renderDepKPIsAndSparks({ data, years, entities, selection }) {
-      const kpiContainer = document.getElementById('kpiContainer-dep');
-      const sparksContainer = document.getElementById('sparks-dep');
-      kpiContainer.innerHTML = '';
-      sparksContainer.innerHTML = '';
-      const lastYear = Math.max(...years);
-      const prevYear = years[years.length - 2] || lastYear;
-
-      const totalsByYear = years.map(y => data.filter(r => r.anio === y).reduce((sum, r) => sum + r.valor, 0));
-      const lastTotal = totalsByYear[totalsByYear.length - 1] || 0;
-      const prevTotal = totalsByYear[totalsByYear.length - 2] || 0;
-      const diff = prevTotal === 0 ? 0 : ((lastTotal - prevTotal) / prevTotal) * 100;
-
-      const kpiTotal = document.createElement('div');
-      kpiTotal.className = 'kpi';
-      kpiTotal.innerHTML = `<div style="font-size:13px;color:var(--muted)">Total ${selection === 'instituciones' ? 'Compras' : 'Contratos'} (${lastYear})</div><div style="font-size:18px;font-weight:700">${nf.format(lastTotal)}</div><div style="color:${diff>=0? '#8ef':'#f88'};font-size:12px;font-weight:bold;">${diff>=0? '▲ '+diff.toFixed(1)+'%': '▼ '+diff.toFixed(1)+'%'} <span style="font-weight:normal;color:var(--muted);">vs ${prevYear}</span></div>`;
-      kpiContainer.appendChild(kpiTotal);
-
-      const kpiCount = document.createElement('div');
-      kpiCount.className = 'kpi';
-      kpiCount.innerHTML = `<div style="font-size:13px;color:var(--muted)"># de ${selection}</div><div style="font-size:18px;font-weight:700">${entities.length}</div><div style="color:var(--muted);font-size:12px">En ${years.length} años</div>`;
-      kpiContainer.appendChild(kpiCount);
-
-      entities.forEach((ent, i) => {
-        const wrapper = document.createElement('div'); wrapper.className = 'sparkline';
-        const left = document.createElement('div'); left.style.flex = '1';
-        const title = document.createElement('div'); title.style.fontSize = '12px'; title.style.color = 'var(--muted)'; title.textContent = ent.substring(0, 25) + (ent.length > 25 ? '...' : ''); title.title = ent;
-        const lastValue = (data.find(r => r.anio === lastYear && r.entidad === ent) || {valor: 0}).valor;
-        const val = document.createElement('div'); val.style.fontWeight = '700'; val.style.fontSize = '13px'; val.textContent = nf.format(lastValue);
-        left.appendChild(title); left.appendChild(val);
-        const chartBox = document.createElement('div'); chartBox.style.width = '140px'; chartBox.style.height = '70px';
-        wrapper.appendChild(left); wrapper.appendChild(chartBox); sparksContainer.appendChild(wrapper);
-        const mini = echarts.init(chartBox, null, { renderer: 'canvas' });
-        const sparkData = years.map(y => (data.find(r => r.anio === y && r.entidad === ent) || {valor: 0}).valor);
-        mini.setOption({ grid: { left: 6, right: 6, top: 6, bottom: 6 }, xAxis: { show: false, type: 'category', data: years }, yAxis: { show: false, type: 'value' }, series: [{ type: 'line', data: sparkData, smooth: true, lineStyle: { width: 2, color: palette[i % palette.length] }, areaStyle: { opacity: 0.06 } }] });
-      });
-    }
-
-    function renderDepTab() {
-      const depData = getDataForDepTab();
-      const otrosThreshold = parseFloat(otrosThresholdDepInput.value) || 2;
-      const useLog = logChkDep.checked;
-      const normalize = normChkDep.checked;
-      const showTotals = showTotalsChkDep.checked;
-      const selectedYear = depYearSelect.value;
-      const metricName = depData.selection === 'instituciones' ? 'Compras' : 'Contratos';
-
-      // Actualizar títulos dinámicamente
-      if (selectedYear === 'todos') {
-        document.getElementById('title-main-dep').textContent = `Evolución de ${metricName}`;
-      } else {
-        document.getElementById('title-main-dep').textContent = `${metricName} en ${selectedYear}`;
-      }
-      document.getElementById('title-donut-dep').textContent = `Distribución de ${metricName} (${Math.max(...depData.years)})`;
-      document.getElementById('title-stack-dep').textContent = `Composición de ${metricName} por Año`;
-      document.getElementById('title-sparks-dep').textContent = `Tendencias Individuales (${metricName})`;
+    function drawPie(containerId, legendContainerId, dataArr){
+      var c = document.getElementById(containerId);
+      if(!c) return;
+      var w = Math.max(100, c.clientWidth)||460;
+      var h = c.clientHeight||250;
+      var r = Math.min(w,h)/2.3; // Pie más grande
+      var cx = w/2;
+      var cy = h/2;
+      var svg = createSVG(w,h);
+      var total = 0;
+      for(var i=0;i<dataArr.length;i++) total += dataArr[i].value;
+      if(total === 0) total = 1;
       
-      // Pasamos las nuevas opciones a la función que construye la gráfica principal
-      mainDep.setOption(buildDepMainOptions(depData, { useLog, normalize, showTotals, selectedYear }), true);
-      donutDep.setOption(buildDepDonutOptions(depData, otrosThreshold), true);
-      stackDep.setOption(buildDepStackOptions(depData), true);
-      renderDepKPIsAndSparks(depData);
+      var startAngle = -Math.PI/2;
+      var legendHTML = '';
+      for(var i=0;i<dataArr.length;i++){
+        var d = dataArr[i];
+        var angle = (d.value/total) * Math.PI*2;
+        var endAngle = startAngle + angle;
+        var x1 = cx + r*Math.cos(startAngle);
+        var y1 = cy + r*Math.sin(startAngle);
+        var x2 = cx + r*Math.cos(endAngle);
+        var y2 = cy + r*Math.sin(endAngle);
+        var large = angle > Math.PI ? 1:0;
+        var color = COLORS_PIE[i % COLORS_PIE.length];
+        var path = document.createElementNS('http://www.w3.org/2000/svg','path');
+        var dAttr = 'M ' + cx + ' ' + cy + ' L ' + x1 + ' ' + y1 + ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + x2 + ' ' + y2 + ' Z';
+        path.setAttribute('d',dAttr);
+        path.setAttribute('fill', color);
+        svg.appendChild(path);
+
+        var percent = (d.value / total * 100).toFixed(1);
+        legendHTML += '<span><i class="swatch" style="background:' + color + '"></i>' + d.label + ' ('+percent+'%)</span>';
+
+        startAngle = endAngle;
+      }
+      var legendContainer = document.getElementById(legendContainerId);
+      if(legendContainer) legendContainer.innerHTML = legendHTML;
+      c.appendChild(svg);
     }
 
-    depMetricSelect.addEventListener('change', renderDepTab);
-    depYearSelect.addEventListener('change', renderDepTab);
-    otrosThresholdDepInput.addEventListener('change', renderDepTab);
-    logChkDep.addEventListener('change', renderDepTab);
-    normChkDep.addEventListener('change', renderDepTab);
-    showTotalsChkDep.addEventListener('change', renderDepTab);
-    document.getElementById('btnExport-dep').addEventListener('click', () => {
-      const url = mainDep.getDataURL({ pixelRatio: 2, backgroundColor: '#fff' });
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `evolucion_${depMetricSelect.value}.png`;
-      a.click();
+      // main charts
+      drawLineChart('chart-pib',pib);
+      drawLineChart('chart-ied-series',ied);
+      drawLineChart('chart-ied', ied); // Se añade la llamada que faltaba para el gráfico pequeño de IED.
+
+      drawStackedBars('chart-trade',trade.labels,trade.imports,trade.exports);
+      drawStackedBars('chart-prod-val',prodVal.labels,prodVal.production,prodVal.sales);
+      drawStackedBars('chart-prod-qty',prodQty.labels,prodQty.production,prodQty.sales);
+
+      (function(){
+        var c = document.getElementById('chart-balance-sub');
+        if(!c) return;
+        var w = Math.max(100, c.clientWidth)||460;
+        var h = c.clientHeight||140;
+        var svg = createSVG(w,h);
+        var combined = balanceSub.imports.concat(balanceSub.exports);
+        var max = Math.max.apply(null, combined);
+        if(!isFinite(max) || max===0) max = 1;
+        var bw = (w-60)/balanceSub.labels.length*0.35;
+        for(var i=0;i<balanceSub.labels.length;i++){
+          var lab = balanceSub.labels[i];
+          var x = 30 + i*((w-60)/balanceSub.labels.length);
+          var impH = (balanceSub.imports[i]/max)*(h-40);
+          var expH = (balanceSub.exports[i]/max)*(h-40);
+          var rect1 = document.createElementNS('http://www.w3.org/2000/svg','rect');
+          rect1.setAttribute('x',x);
+          rect1.setAttribute('y',h-20-impH);
+          rect1.setAttribute('width',bw);
+          rect1.setAttribute('height',impH);
+          rect1.setAttribute('fill', COLOR_PRIMARY);
+          svg.appendChild(createBar(x, h-20-impH, bw, impH, COLOR_PRIMARY, 'Importaciones: ' + balanceSub.imports[i].toLocaleString()));
+          var rect2 = document.createElementNS('http://www.w3.org/2000/svg','rect');
+          rect2.setAttribute('x',x + bw + 6);
+          rect2.setAttribute('y',h-20-expH);
+          rect2.setAttribute('width',bw);
+          rect2.setAttribute('height',expH);
+          rect2.setAttribute('fill', COLOR_SECONDARY);
+          svg.appendChild(createBar(x + bw + 6, h-20-expH, bw, expH, COLOR_SECONDARY, 'Exportaciones: ' + balanceSub.exports[i].toLocaleString()));
+          var t = document.createElementNS('http://www.w3.org/2000/svg','text');
+          t.setAttribute('x', x + bw + 6);
+          t.setAttribute('y', h - 4);
+          t.setAttribute('font-size',11);
+          t.setAttribute('text-anchor','middle');
+          t.setAttribute('fill','#111');
+          t.textContent = lab;
+          svg.appendChild(t);
+        }
+        c.appendChild(svg);
+      })();
+
+      drawPie('chart-origin', 'legend-origin', origins);
+      drawPie('chart-dest', 'legend-dest', dest);
+
+      function drawFirmsChart(containerId, firmsData) {
+        var c = document.getElementById(containerId);
+        if(!c) return;
+        var w = Math.max(100, c.clientWidth)||900;
+        var h = c.clientHeight||280;
+        var svg = createSVG(w,h);
+        var p = { top: 20, right: 20, bottom: 30, left: 40 };
+
+        let maxArr = [];
+        for(var si=0;si<firmsData.series.length;si++) maxArr = maxArr.concat(firmsData.series[si].vals);
+        var maxVal = Math.ceil(Math.max.apply(null,maxArr) / 50) * 50;
+
+        var yearCount = firmsData.years.length;
+        var seriesCount = firmsData.series.length;
+        var groupWidth = (w - p.left - p.right) / yearCount;
+        var barWidth = groupWidth * 0.2;
+        var barMargin = groupWidth * 0.05;
+
+        for(var i=0; i<yearCount; i++){
+          var groupX = p.left + i * groupWidth;
+          var startX = groupX + (groupWidth - (seriesCount * barWidth + (seriesCount - 1) * barMargin)) / 2;
+
+          for(var si=0; si<seriesCount; si++){
+            var s = firmsData.series[si];
+            var val = s.vals[i];
+            var barH = (val / maxVal) * (h - p.top - p.bottom);
+            var x = startX + si * (barWidth + barMargin);
+            var y = h - p.bottom - barH;
+            
+            var tooltipText = 'Año: ' + firmsData.years[i] + '\nSubsector: ' + s.name + '\nEmpresas: ' + val;
+            var bar = createBar(x, y, barWidth, barH, s.color, tooltipText);
+            svg.appendChild(bar);
+          }
+
+          // X-axis labels
+          var x_label = groupX + groupWidth / 2;
+          var t = document.createElementNS('http://www.w3.org/2000/svg','text');
+          t.setAttribute('x',x_label);
+          t.setAttribute('y',h - p.bottom + 15);
+          t.setAttribute('font-size',11);
+          t.setAttribute('text-anchor','middle');
+          t.setAttribute('fill','#111');
+          t.textContent = firmsData.years[i];
+          svg.appendChild(t);
+        }
+
+        // Y-axis labels
+        var numGridLines = 5;
+        for (var i = 0; i <= numGridLines; i++) {
+          var val = (maxVal / numGridLines) * i;
+          var y_label = h - p.bottom - (val / maxVal) * (h - p.top - p.bottom);
+          var text = document.createElementNS('http://www.w3.org/2000/svg','text');
+          text.setAttribute('x', p.left - 8);
+          text.setAttribute('y', y_label + 3);
+          text.setAttribute('font-size', 10);
+          text.setAttribute('text-anchor', 'end');
+          text.setAttribute('fill', '#666');
+          text.textContent = val.toFixed(0);
+          svg.appendChild(text);
+        }
+
+        c.appendChild(svg);
+      }
+      drawFirmsChart('chart-firms-e', firmsE);
+      drawFirmsChart('chart-firms-i', firmsI);
+      (function(){
+        var c = document.getElementById('chart-balance');
+        if(!c) return;
+        var w = Math.max(100, c.clientWidth)||420;
+        var h = c.clientHeight||220;
+        var svg = createSVG(w,h);
+        var combined = trade.imports.concat(trade.exports);
+        var maxVal = Math.ceil(Math.max.apply(null, combined) / 1000) * 1000;
+        if(!isFinite(maxVal) || maxVal===0) maxVal = 1;
+        
+        var barGroupWidth = (w-80)/trade.labels.length;
+        var bw = barGroupWidth * 0.3;
+
+        for(var i=0;i<trade.labels.length;i++){
+          var groupX = 40 + i*barGroupWidth;
+          var x1 = groupX + (barGroupWidth - (bw*2 + 8))/2;
+          var x2 = x1 + bw + 8;
+
+          var impH = (trade.imports[i]/maxVal)*(h-80);
+          var expH = (trade.exports[i]/maxVal)*(h-80);
+
+          var rect1 = createBar(x1, h-40-impH, bw, impH, COLOR_PRIMARY, 'Importaciones: ' + trade.imports[i].toLocaleString());
+          var rect2 = createBar(x2, h-40-expH, bw, expH, COLOR_SECONDARY, 'Exportaciones: ' + trade.exports[i].toLocaleString());
+          svg.appendChild(rect1);
+          svg.appendChild(rect2);
+
+          var deficit = trade.imports[i]-trade.exports[i];
+          var dlabel = document.createElementNS('http://www.w3.org/2000/svg','text');
+          dlabel.setAttribute('x', x2 + bw/2);
+          dlabel.setAttribute('y', h - 40 - Math.max(impH,expH) - 12);
+          dlabel.setAttribute('font-size',11);
+          dlabel.setAttribute('text-anchor','middle');
+          dlabel.setAttribute('fill', COLOR_ACCENT);
+          dlabel.setAttribute('font-weight', 'bold');
+          dlabel.textContent = 'Déficit: ' + deficit.toLocaleString();
+          svg.appendChild(dlabel);
+
+          var labt = document.createElementNS('http://www.w3.org/2000/svg','text');
+          labt.setAttribute('x', x1 + bw + 4);
+          labt.setAttribute('y', h - 10);
+          labt.setAttribute('font-size',11);
+          labt.setAttribute('text-anchor','middle');
+          labt.setAttribute('fill','#111');
+          labt.textContent = trade.labels[i].replace(' (Ene-Sep)','');
+          svg.appendChild(labt);
+        }
+        c.appendChild(svg);
+      })();
     });
-
-    /* === INICIALIZACIÓN Y EVENTOS GLOBALES === */
-    function init(){
-      renderAll(); // Render Tab 1
-
-      // Poblar el filtro de año para la pestaña de dependencias
-      const { years } = getDataForDepTab();
-      depYearSelect.innerHTML = '<option value="todos">Todos los años</option>';
-      years.forEach(year => {
-        const option = document.createElement('option');
-        option.value = year;
-        option.textContent = year;
-        depYearSelect.appendChild(option);
-      });
-
-      renderDepTab(); // Render Tab 2
-      window.addEventListener('resize', ()=>{
-        main.resize(); stack.resize(); donut.resize();
-        mainDep.resize(); stackDep.resize(); donutDep.resize();
-      });
-    }
-    init();
   </script>
+
 </body>
 </html>
