@@ -389,41 +389,39 @@
             <strong>Concentración de Origen de Importación:</strong> La presión competitiva se origina principalmente en China, Estados Unidos, Vietnam y Bangladés, países que en conjunto concentran el 65% al 67% del valor total importado. Estos orígenes, especialmente los asiáticos, son los objetivos primarios de las medidas de protección y fiscalización.
           </li>
         </ul>
-        <table class="stats" style="margin-top: 8px;">
-          <caption>Tabla 5.6: Concentración Geográfica del Comercio Exterior de la ITC (2024 - Cifras Acumuladas)</caption>
-          <thead>
-            <tr><th>Flujo Comercial</th><th>País/Región</th><th>Valor Acumulado (Millones de USD)</th><th>Participación (%)</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td rowspan="3">Exportaciones (Destino)</td>
-              <td>Estados Unidos (EUA)</td><td>7,414</td><td>~91%</td>
-            </tr>
-            <tr><td>Otros Países</td><td>699</td><td>~9%</td></tr>
-            <tr><td><strong>TOTAL Exportaciones</strong></td><td><strong>8,113</strong></td><td><strong>100%</strong></td></tr>
-            <tr>
-              <td rowspan="6">Importaciones (Origen)</td>
-              <td>China</td><td>5,407</td><td>~36%</td>
-            </tr>
-            <tr><td>Estados Unidos (EUA)</td><td>3,413</td><td>~23%</td></tr>
-            <tr><td>Vietnam</td><td>977</td><td>~7%</td></tr>
-            <tr><td>Bangladés</td><td>649</td><td>~4%</td></tr>
-            <tr><td>Otros Países</td><td>4,554</td><td>~30%</td></tr>
-            <tr><td><strong>TOTAL Importaciones</strong></td><td><strong>15,000</strong></td><td><strong>100%</strong></td></tr>
-          </tbody>
-        </table>
-        <p class="note" style="text-align: right; margin-top: 4px;">Fuente: Secretaría de Economía, Sistema de Información Arancelaria Vía Internet (SIAVI). Elaboración propia con datos consolidados del periodo 2020-2024.</p>
-
-        <div class="flex-container" style="margin-top:12px; gap: 24px;">
-          <div>
-            <h3>Destino de Exportaciones (2024)</h3>
-            <div class="chart" id="chart-geo-exports" style="height:250px"></div>
-            <div class="legend" id="legend-geo-exports"></div>
+        <div class="flex-container" style="margin-top: 12px; align-items: flex-start; gap: 24px;">
+          <div style="flex: 1.2;">
+            <table class="stats" style="margin-top: 8px;">
+              <caption>Tabla 5.6: Concentración Geográfica del Comercio Exterior de la ITC (2024 - Cifras Acumuladas)</caption>
+              <thead>
+                <tr><th>Flujo Comercial</th><th>País/Región</th><th>Valor Acumulado (Millones de USD)</th><th>Participación (%)</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="3">Exportaciones (Destino)</td>
+                  <td>Estados Unidos (EUA)</td><td>7,414</td><td>~91%</td>
+                </tr>
+                <tr><td>Otros Países</td><td>699</td><td>~9%</td></tr>
+                <tr><td><strong>TOTAL Exportaciones</strong></td><td><strong>8,113</strong></td><td><strong>100%</strong></td></tr>
+                <tr>
+                  <td rowspan="6">Importaciones (Origen)</td>
+                  <td>China</td><td>5,407</td><td>~36%</td>
+                </tr>
+                <tr><td>Estados Unidos (EUA)</td><td>3,413</td><td>~23%</td></tr>
+                <tr><td>Vietnam</td><td>977</td><td>~7%</td></tr>
+                <tr><td>Bangladés</td><td>649</td><td>~4%</td></tr>
+                <tr><td>Otros Países</td><td>4,554</td><td>~30%</td></tr>
+                <tr><td><strong>TOTAL Importaciones</strong></td><td><strong>15,000</strong></td><td><strong>100%</strong></td></tr>
+              </tbody>
+            </table>
+            <p class="note" style="text-align: right; margin-top: 4px;">Fuente: Secretaría de Economía, Sistema de Información Arancelaria Vía Internet (SIAVI). Elaboración propia con datos consolidados del periodo 2020-2024.</p>
           </div>
-          <div>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 18px;">
+            <h3>Destino de Exportaciones (2024)</h3>
+            <div class="chart" id="chart-geo-exports" style="height:120px"></div>
+            
             <h3>Origen de Importaciones (2024)</h3>
-            <div class="chart" id="chart-geo-imports" style="height:250px"></div>
-            <div class="legend" id="legend-geo-imports"></div>
+            <div class="chart" id="chart-geo-imports" style="height:200px"></div>
           </div>
         </div>
       </div>
@@ -647,6 +645,60 @@
       { label: 'Estados Unidos (EUA)', value: 7414 },
       { label: 'Otros Países', value: 699 }
     ];
+
+    function drawHorizontalBarChart(containerId, data, color) {
+        var c = document.getElementById(containerId);
+        if (!c) return;
+        var w = Math.max(100, c.clientWidth) || 400;
+        var h = c.clientHeight || 200;
+        var p = { top: 10, right: 20, bottom: 20, left: 120 }; // Padding para etiquetas
+        var svg = createSVG(w, h);
+
+        var maxVal = Math.max.apply(null, data.map(d => d.value));
+        var barHeight = (h - p.top - p.bottom) / data.length * 0.7;
+        var barSpacing = (h - p.top - p.bottom) / data.length * 0.3;
+
+        for (var i = 0; i < data.length; i++) {
+            var d = data[i];
+            var barY = p.top + i * (barHeight + barSpacing);
+            var barWidth = (d.value / maxVal) * (w - p.left - p.right);
+
+            // Etiqueta del país
+            var label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', p.left - 10);
+            label.setAttribute('y', barY + barHeight / 2 + 4);
+            label.setAttribute('font-size', 11);
+            label.setAttribute('text-anchor', 'end');
+            label.setAttribute('fill', '#333');
+            label.textContent = d.label;
+            svg.appendChild(label);
+
+            // Barra
+            var tooltipText = d.label + ': ' + d.value.toLocaleString() + ' MM USD';
+            var bar = createBar(p.left, barY, barWidth, barHeight, color, tooltipText);
+            svg.appendChild(bar);
+
+            // Etiqueta de valor dentro o fuera de la barra
+            var valueLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            var valueX = p.left + barWidth + 5;
+            var valueAnchor = 'start';
+            var valueFill = '#333';
+            if (barWidth > 80) { // Si la barra es suficientemente ancha, poner el texto adentro
+                valueX = p.left + barWidth - 5;
+                valueAnchor = 'end';
+                valueFill = 'white';
+            }
+            valueLabel.setAttribute('x', valueX);
+            valueLabel.setAttribute('y', barY + barHeight / 2 + 4);
+            valueLabel.setAttribute('font-size', 10);
+            valueLabel.setAttribute('font-weight', 'bold');
+            valueLabel.setAttribute('text-anchor', valueAnchor);
+            valueLabel.setAttribute('fill', valueFill);
+            valueLabel.textContent = d.value.toLocaleString();
+            svg.appendChild(valueLabel);
+        }
+        c.appendChild(svg);
+    }
 
     var geoImportsData = [
       { label: 'China', value: 5407 }, { label: 'Estados Unidos (EUA)', value: 3413 },
@@ -1233,8 +1285,8 @@
       drawPie('chart-origin', 'legend-origin', origins);
       drawPie('chart-dest', 'legend-dest', dest);
 
-      drawPie('chart-geo-exports', 'legend-geo-exports', geoExportsData);
-      drawPie('chart-geo-imports', 'legend-geo-imports', geoImportsData);
+      drawHorizontalBarChart('chart-geo-exports', geoExportsData, COLOR_SECONDARY);
+      drawHorizontalBarChart('chart-geo-imports', geoImportsData, COLOR_PRIMARY);
 
       function drawFirmsChart(containerId, firmsData) {
         var c = document.getElementById(containerId);
