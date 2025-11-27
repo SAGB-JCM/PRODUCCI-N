@@ -374,28 +374,79 @@
           </tbody>
         </table>
       </div>
+      
+      <div style="margin-top:18px; border-top: 1px solid #eee; padding-top: 12px;">
+        <h2>Estructura Geográfica, Composición y Riesgos de Dependencia</h2>
+        <p class="chart-context">
+          La Secretaría de Economía, a través del Sistema de Información Arancelaria Vía Internet (SIAVI), reúne y publica información detallada sobre el comercio exterior de México, incluyendo los valores de importación y exportación por país, fracción arancelaria y sector productivo. Este sistema integra datos oficiales de las operaciones registradas en la aduana y permite identificar los principales orígenes de las importaciones de la ITC con base en montos y participaciones acumuladas. Con esta información es posible analizar la estructura geográfica del comercio del sector y los riesgos asociados a la concentración de proveedores, revelando dos características estructurales del sector: la dependencia de EUA como cliente y la concentración de la presión en países asiáticos.
+        </p>
+        <h3 style="font-size: 14px; color: var(--primary-color);">Análisis Estructural (Resumen):</h3>
+        <ul class="intro-text" style="margin-top:0; padding-left: 20px;">
+          <li>
+            <strong>Dependencia Exportadora de EUA:</strong> Estados Unidos consolida su posición como destino hegemónico, absorbiendo consistentemente entre el 84% y el 91% de las exportaciones totales mexicanas de textiles y confección. Esta dependencia subraya la importancia crítica del mercado norteamericano y la necesidad de mantener la ventaja competitiva derivada del T-MEC, lo cual hace imperativa una revisión de la política arancelaria sobre insumos para no dañar los márgenes de los exportadores.
+          </li>
+          <li>
+            <strong>Concentración de Origen de Importación:</strong> La presión competitiva se origina principalmente en China, Estados Unidos, Vietnam y Bangladés, países que en conjunto concentran el 65% al 67% del valor total importado. Estos orígenes, especialmente los asiáticos, son los objetivos primarios de las medidas de protección y fiscalización.
+          </li>
+        </ul>
+        <table class="stats" style="margin-top: 8px;">
+          <caption>Tabla 5.6: Concentración Geográfica del Comercio Exterior de la ITC (2024 - Cifras Acumuladas)</caption>
+          <thead>
+            <tr><th>Flujo Comercial</th><th>País/Región</th><th>Valor Acumulado (Millones de USD)</th><th>Participación (%)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="3">Exportaciones (Destino)</td>
+              <td>Estados Unidos (EUA)</td><td>7,414</td><td>~91%</td>
+            </tr>
+            <tr><td>Otros Países</td><td>699</td><td>~9%</td></tr>
+            <tr><td><strong>TOTAL Exportaciones</strong></td><td><strong>8,113</strong></td><td><strong>100%</strong></td></tr>
+            <tr>
+              <td rowspan="6">Importaciones (Origen)</td>
+              <td>China</td><td>5,407</td><td>~36%</td>
+            </tr>
+            <tr><td>Estados Unidos (EUA)</td><td>3,413</td><td>~23%</td></tr>
+            <tr><td>Vietnam</td><td>977</td><td>~7%</td></tr>
+            <tr><td>Bangladés</td><td>649</td><td>~4%</td></tr>
+            <tr><td>Otros Países</td><td>4,554</td><td>~30%</td></tr>
+            <tr><td><strong>TOTAL Importaciones</strong></td><td><strong>15,000</strong></td><td><strong>100%</strong></td></tr>
+          </tbody>
+        </table>
+        <p class="note" style="text-align: right; margin-top: 4px;">Fuente: Secretaría de Economía, Sistema de Información Arancelaria Vía Internet (SIAVI). Elaboración propia con datos consolidados del periodo 2020-2024.</p>
 
+        <div class="flex-container" style="margin-top:12px; gap: 24px;">
+          <div>
+            <h3>Destino de Exportaciones (2024)</h3>
+            <div class="chart" id="chart-geo-exports" style="height:250px"></div>
+            <div class="legend" id="legend-geo-exports"></div>
+          </div>
+          <div>
+            <h3>Origen de Importaciones (2024)</h3>
+            <div class="chart" id="chart-geo-imports" style="height:250px"></div>
+            <div class="legend" id="legend-geo-imports"></div>
+          </div>
+        </div>
+      </div>
+      
       <div class="flex-container" style="margin-top:12px">
         <div>
           <h3>Origen de las importaciones (Acumulado 2020–2024)</h3>
           <p class="chart-context">
             La tendencia de las importaciones totales (2020 Q1 - 2025 Q3) refleja la dependencia estructural de la ITC hacia insumos externos. Las importaciones superan consistentemente a las exportaciones en volumen, lo que se traduce en el déficit comercial observado. El <strong>subsector SCIAN 313 (Insumos textiles)</strong> es el que más contribuye a este volumen de importaciones, evidenciando un cuello de botella en la producción nacional de materia prima e intermedios.
           </p>
-          <div class="chart-container">
-            <div class="chart" id="chart-origin" style="height:250px"></div>
-            <div class="legend" id="legend-origin"></div>
-            <table class="stats" style="margin-top:8px;">
-              <thead><tr><th>País</th><th>Monto (MM USD)</th><th>Participación</th></tr></thead>
-              <tbody>
-                <tr><td>China</td><td>18,500</td><td>38.5%</td></tr>
-                <tr><td>Estados Unidos</td><td>12,100</td><td>25.2%</td></tr>
-                <tr><td>Vietnam</td><td>3,850</td><td>8.0%</td></tr>
-                <tr><td>India</td><td>1,550</td><td>3.2%</td></tr>
-                <tr><td>Bangladés</td><td>1,350</td><td>2.8%</td></tr>
-                <tr><td>Otros</td><td>10,700</td><td>22.3%</td></tr>
-              </tbody>
-            </table>
-          </div>
+          <div class="chart" id="chart-origin" style="height:250px; margin-bottom: 8px;"></div>
+          <div class="legend" id="legend-origin"></div>
+          <table class="stats" style="margin-top:8px;">
+            <thead><tr><th>País</th><th>Monto (MM USD)</th><th>Participación</th></tr></thead>
+            <tbody>
+              <tr><td>China</td><td>18,500</td><td>38.5%</td></tr>
+              <tr><td>Estados Unidos</td><td>12,100</td><td>25.2%</td></tr>
+              <tr><td>Vietnam</td><td>3,850</td><td>8.0%</td></tr>
+              <tr><td>India</td><td>1,550</td><td>3.2%</td></tr>
+              <tr><td>Bangladés</td><td>1,350</td><td>2.8%</td></tr>
+              <tr><td>Otros</td><td>10,700</td><td>22.3%</td></tr>
+            </tbody>
+          </table>
         </div>
 
         <div>
@@ -403,21 +454,19 @@
           <p class="chart-context">
             Las exportaciones totales de la ITC (2020 Q1 - 2025 Q3) muestran una tendencia de crecimiento notable, especialmente después de 2021. Este desempeño se debe en gran medida a la robusta actividad del <strong>subsector SCIAN 315 (Fabricación de prendas de vestir)</strong>, que funciona como un motor clave de las exportaciones, representando la etapa final y de mayor valor añadido en la cadena productiva. La demanda sostenida del mercado estadounidense ha sido el principal factor impulsor.
           </p>
-          <div class="chart-container">
-            <div class="chart" id="chart-dest" style="height:250px"></div>
-            <div class="legend" id="legend-dest"></div>
-            <table class="stats" style="margin-top:8px;">
-              <thead><tr><th>País</th><th>Monto (MM USD)</th><th>Participación</th></tr></thead>
-              <tbody>
-                <tr><td>Estados Unidos</td><td>10,900</td><td>89.5%</td></tr>
-                <tr><td>Canadá</td><td>450</td><td>3.7%</td></tr>
-                <tr><td>Guatemala</td><td>220</td><td>1.8%</td></tr>
-                <tr><td>Colombia</td><td>110</td><td>0.9%</td></tr>
-                <tr><td>Honduras</td><td>80</td><td>0.7%</td></tr>
-                <tr><td>Otros</td><td>410</td><td>3.4%</td></tr>
-              </tbody>
-            </table>
-          </div>
+          <div class="chart" id="chart-dest" style="height:250px; margin-bottom: 8px;"></div>
+          <div class="legend" id="legend-dest"></div>
+          <table class="stats" style="margin-top:8px;">
+            <thead><tr><th>País</th><th>Monto (MM USD)</th><th>Participación</th></tr></thead>
+            <tbody>
+              <tr><td>Estados Unidos</td><td>10,900</td><td>89.5%</td></tr>
+              <tr><td>Canadá</td><td>450</td><td>3.7%</td></tr>
+              <tr><td>Guatemala</td><td>220</td><td>1.8%</td></tr>
+              <tr><td>Colombia</td><td>110</td><td>0.9%</td></tr>
+              <tr><td>Honduras</td><td>80</td><td>0.7%</td></tr>
+              <tr><td>Otros</td><td>410</td><td>3.4%</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -594,6 +643,16 @@
       balance: [-370120, -817407, 765715]
     };
     
+    var geoExportsData = [
+      { label: 'Estados Unidos (EUA)', value: 7414 },
+      { label: 'Otros Países', value: 699 }
+    ];
+
+    var geoImportsData = [
+      { label: 'China', value: 5407 }, { label: 'Estados Unidos (EUA)', value: 3413 },
+      { label: 'Vietnam', value: 977 }, { label: 'Bangladés', value: 649 }, { label: 'Otros Países', value: 4554 }
+    ];
+
     function createSVG(w,h){
       var svgNS = 'http://www.w3.org/2000/svg';
       var svg = document.createElementNS(svgNS,'svg');
@@ -1065,7 +1124,8 @@
     function drawPie(containerId, legendContainerId, dataArr){
       var c = document.getElementById(containerId);
       if(!c) return;
-      var w = Math.max(100, c.clientWidth)||460;
+      // Si clientWidth es 0 (p.ej. en un contenedor flex sin ancho definido), usar el alto como referencia para el ancho.
+      var w = Math.max(100, c.clientWidth) || c.clientHeight || 460;
       var h = c.clientHeight||250;
       var r = Math.min(w,h)/2.3; // Pie más grande
       var cx = w/2;
@@ -1172,6 +1232,9 @@
 
       drawPie('chart-origin', 'legend-origin', origins);
       drawPie('chart-dest', 'legend-dest', dest);
+
+      drawPie('chart-geo-exports', 'legend-geo-exports', geoExportsData);
+      drawPie('chart-geo-imports', 'legend-geo-imports', geoImportsData);
 
       function drawFirmsChart(containerId, firmsData) {
         var c = document.getElementById(containerId);
